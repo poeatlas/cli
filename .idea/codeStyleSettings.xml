@@ -98,6 +98,12 @@
           <option name="FOR_BRACE_FORCE" value="3" />
           <option name="PARENT_SETTINGS_INSTALLED" value="true" />
         </codeStyleSettings>
+        <codeStyleSettings language="Groovy">
+          <indentOptions>
+            <option name="INDENT_SIZE" value="2" />
+            <option name="CONTINUATION_INDENT_SIZE" value="4" />
+          </indentOptions>
+        </codeStyleSettings>
         <codeStyleSettings language="JAVA">
           <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="true" />
           <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true" />
