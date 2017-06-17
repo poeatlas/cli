@@ -1,0 +1,79 @@
+buildscript {
+    ext {
+        startClass = 'com.github.poeatlas.cli.Main'
+    }
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'eclipse'
+    id 'checkstyle'
+    id 'pmd'
+    id 'findbugs'
+    id 'net.researchgate.release' version '2.6.0'
+    id 'nebula.lint' version '7.4.0'
+}
+
+jar {
+    baseName = 'poeatlas-cli'
+    version = "${version}"
+
+    manifest {
+        attributes "Main-Class": "${startClass}"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
+}
+
+eclipse {
+    classpath {
+        containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+        containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+    }
+}
+
+checkstyle {
+    toolVersion = '7.8.1'
+    showViolations = true
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        html.destination rootProject.file("build/reports/checkstyle.html")
+    }
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+tasks.withType(Checkstyle).each { checkstyleTask ->
+    checkstyleTask.doLast {
+        reports.all { report ->
+            def outputFile = report.destination
+            if (outputFile.exists() && outputFile.text.contains("<error ")) {
+                throw new GradleException("There were checkstyle warnings! For more info check file://${reports.html.destination}")
+            }
+        }
+    }
+}
+
+gradleLint.rules = ['all-dependency']
