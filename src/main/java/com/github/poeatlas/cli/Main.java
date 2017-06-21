@@ -1,14 +1,38 @@
 package com.github.poeatlas.cli;
 
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.System.out;
 
-@Slf4j
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import lombok.SneakyThrows;
+
+import java.io.File;
+
+
 public class Main {
   public static void main(final String[] args) {
-    new Main().hello();
+    System.exit(new Main().hello(args));
   }
 
-  private void hello() {
-    log.info("Hello, world");
+  @SneakyThrows
+  private int hello(final String[] args) {
+    final OptionParser parser = new OptionParser();
+
+    parser.accepts("input", "The GGPK file.")
+        .withRequiredArg()
+        .ofType(File.class);
+
+    parser.accepts("output", "Where to extract the contents of the GGPK file.")
+        .withRequiredArg()
+        .ofType(File.class);
+
+    final OptionSet opt = parser.parse(args);
+
+    if (!opt.has("input") || !opt.has("output")) {
+      parser.printHelpOn(out);
+      return 1;
+    }
+
+    return 0;
   }
 }

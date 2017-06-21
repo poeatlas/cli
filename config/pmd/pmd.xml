@@ -83,10 +83,10 @@
         <!--Rule disabled - Developers can make as many static import as they need.-->
         <exclude name="TooManyStaticImports"/>
     </rule>
-    <rule ref="rulesets/java/j2ee.xml">
-        <!--Rule disabled - This is not a J2EE project.-->
-        <exclude name="DoNotUseThreads"/>
-    </rule>
+    <!--<rule ref="rulesets/java/j2ee.xml">-->
+        <!--&lt;!&ndash;Rule disabled - This is not a J2EE project.&ndash;&gt;-->
+        <!--<exclude name="DoNotUseThreads"/>-->
+    <!--</rule>-->
     <rule ref="rulesets/java/javabeans.xml">
         <!--Rule disabled - No point in serializing all beans.-->
         <exclude name="BeanMembersShouldSerialize"/>
@@ -106,6 +106,7 @@
     <rule ref="rulesets/java/logging-java.xml">
         <!--Rule disabled - We are instantiating loggers through a spring managed annotation, thus cannot keep them final.-->
         <exclude name="LoggerIsNotStaticFinal"/>
+        <exclude name="GuardLogStatementJavaUtil"/>
     </rule>
     <rule ref="rulesets/java/migrating.xml">
         <!--Rule disabled - Rule seems to be including JUnit 3 tests that can't have an annotation.-->

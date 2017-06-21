@@ -39,11 +39,7 @@ dependencies {
     compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
   }
 
-  // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-
-  // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
-  testCompile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
+  compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
 }
 
 eclipse {
