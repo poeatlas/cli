@@ -52,10 +52,6 @@ public class Main {
     byte[] tagArr = new byte[4];
     ByteBuffer tag = ByteBuffer.wrap(tagArr);
     fileChannel.read(tag);
-//    tag.flip();
-//    tag.get(tagArr);
-
-//    out.println(new String(tagArr));
 
     ByteBuffer nodeCount = ByteBuffer.allocate(4);
     nodeCount.order(ByteOrder.LITTLE_ENDIAN);
@@ -79,9 +75,6 @@ public class Main {
       out.println(new String(headerArr));
 
     }
-
-//    out.println(new String(tagArr));
-//    fileChannel.read(headerBuffer);
 
     fileChannel.close();
     return 0;
