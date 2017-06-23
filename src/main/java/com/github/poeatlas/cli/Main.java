@@ -2,7 +2,9 @@ package com.github.poeatlas.cli;
 
 import static java.lang.System.out;
 
-import com.github.poeatlas.cli.ggpk.Node;
+import com.github.poeatlas.cli.enums.NodeTypes;
+import com.github.poeatlas.cli.ggpk.ChildNode;
+import com.github.poeatlas.cli.ggpk.RootNode;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -39,13 +41,15 @@ public class Main {
     final File inputFile = opt.valueOf(input);
     final FileChannel fileChannel = FileChannel.open(inputFile.toPath());
 
-    final Node startHeader = Node.valueOf(fileChannel);
+    final RootNode rootNode = RootNode.valueOf(fileChannel);
+    out.println(rootNode);
+    if (rootNode.getType() != NodeTypes.GGPK) {
+      return 1;
+    }
 
-    out.println(startHeader);
-
-    // for findbugs to stop complaining (for now)
-    out.println(opt.valueOf(output));
-    fileChannel.close();
+    for (final long offset : rootNode.getOffsets()) {
+      out.println(ChildNode.valueOf(fileChannel, offset));
+    }
 
     return 0;
   }
