@@ -77,7 +77,7 @@ tasks.withType(Checkstyle).each { checkstyleTask ->
     reports.all { report ->
       def outputFile = report.destination
       if (outputFile.exists() && outputFile.text.contains("<error ")) {
-        throw new GradleException("There were checkstyle warnings! For more info check file://${reports.html.destination}")
+        throw new GradleException("There were checkstyle warnings! For more info check inputFile://${reports.html.destination}")
       }
     }
   }

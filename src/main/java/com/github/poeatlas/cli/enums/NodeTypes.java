@@ -25,6 +25,6 @@ public enum NodeTypes {
       }
     }
 
-    throw new InvalidNodeTypeException("Unknown file type: " + str);
+    throw new InvalidNodeTypeException("Unknown inputFile type: " + str);
   }
 }

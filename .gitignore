@@ -72,10 +72,10 @@ Network Trash Folder
 Temporary Items
 .apdisk
 ### Java template
-# Compiled class file
+# Compiled class inputFile
 *.class
 
-# Log file
+# Log inputFile
 *.log
 
 # BlueJ files
@@ -202,7 +202,7 @@ fabric.properties
 # Ignore Gradle GUI config
 gradle-app.setting
 
-# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+# Avoid ignoring Gradle wrapper jar inputFile (.jar files are usually ignored)
 !gradle-wrapper.jar
 
 # Cache of project
@@ -216,10 +216,10 @@ Thumbs.db
 ehthumbs.db
 ehthumbs_vista.db
 
-# Folder config file
+# Folder config inputFile
 Desktop.ini
 
-# Recycle Bin used on file shares
+# Recycle Bin used on inputFile shares
 $RECYCLE.BIN/
 
 # Windows Installer files
@@ -233,7 +233,7 @@ $RECYCLE.BIN/
 ### Linux template
 *~
 
-# temporary files which can be created if a process still has a handle open of a deleted file
+# temporary files which can be created if a process still has a handle open of a deleted inputFile
 .fuse_hidden*
 
 # KDE directory preferences
@@ -242,7 +242,7 @@ $RECYCLE.BIN/
 # Linux trash folder which might appear on any partition or disk
 .Trash-*
 
-# .nfs files are created when an open file is removed but is still being accessed
+# .nfs files are created when an open inputFile is removed but is still being accessed
 .nfs*
 ### VisualStudioCode template
 .vscode/*

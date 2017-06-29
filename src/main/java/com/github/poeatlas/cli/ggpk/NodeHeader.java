@@ -5,9 +5,9 @@ import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import com.github.poeatlas.cli.enums.NodeTypes;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import lombok.ToString;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -18,27 +18,40 @@ import java.nio.channels.FileChannel;
 class NodeHeader {
   public static final int NODE_HEADER_BYTE_SIZE = 8;
 
-  /* bytes of the node (file). */
-  @Getter @Setter
+  /* bytes of the node (inputFile). */
+  @Getter
+  @Setter
   private int length;
 
-  /* the node (file) type. */
-  @Getter @Setter
+  /* the node (inputFile) type. */
+  @Getter
+  @Setter
   private NodeTypes type;
 
   /* offset of this Node */
-  @Getter @Setter
+  @Getter
+  @Setter
   private long offset;
 
   /**
    * Given a FileChannel, reads from current position to create a Node object
    * and its children nodes that it points to.
    *
-   * @param fileChannel the file channel
+   * @param fileChannel the inputFile channel
    * @return the Node
    */
-  @SneakyThrows
-  protected void fill(final FileChannel fileChannel) {
+
+  public void fill(final FileChannel fileChannel) throws IOException {
+    fill(fileChannel, 0);
+  }
+
+  public void fill(final FileChannel fileChannel, final long offset) throws IOException {
+    if (offset > 0) {
+      // set inputFile position to the node offset, then fill it
+      fileChannel.position(offset);
+      this.setOffset(offset + NodeHeader.NODE_HEADER_BYTE_SIZE);
+    }
+
     final ByteBuffer buf = ByteBuffer.allocate(8);
 
     // set order to little endian to read ints correctly
@@ -56,5 +69,4 @@ class NodeHeader {
     buf.get(fileType);
     this.setType(NodeTypes.valueOf(fileType));
   }
-
 }
