@@ -3,6 +3,7 @@ package com.github.poeatlas.cli.ggpk;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 import com.github.poeatlas.cli.enums.NodeTypes;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,6 +16,7 @@ import java.nio.channels.FileChannel;
  * Created by NothingSoup on 6/22/17.
  */
 @ToString
+@Data
 class NodeHeader {
   public static final int NODE_HEADER_BYTE_SIZE = 8;
 

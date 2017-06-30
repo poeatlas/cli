@@ -6,17 +6,16 @@ import com.github.poeatlas.cli.ggpk.GgpkReader;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import lombok.SneakyThrows;
 
 import java.io.File;
+import java.io.IOException;
 
 public class Main {
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws IOException {
     System.exit(new Main().processGgpk(args));
   }
 
-  @SneakyThrows
-  private int processGgpk(final String[] args) {
+  private int processGgpk(final String[] args) throws IOException {
     final OptionParser parser = new OptionParser();
 
     final OptionSpec<File> input = parser.accepts("input", "The GGPK inputFile.")
@@ -40,6 +39,7 @@ public class Main {
 
     final GgpkReader ggpkReader = new GgpkReader(inputFile);
     ggpkReader.writeTo(outputFile);
+
 
     return 0;
   }

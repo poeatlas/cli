@@ -3,8 +3,8 @@ package com.github.poeatlas.cli.ggpk;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 import com.github.poeatlas.cli.utils.TransformUtil;
+import lombok.Builder;
 import lombok.Data;
-import lombok.ToString;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -14,23 +14,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by NothingSoup on 6/27/17.
+ * Created by NothingSoup on 6/29/17.
  */
-@ToString
 @Data
-public class RootNode {
-  // some hash for verifying node
-  private String digest;
+@Builder
+public class DirectoryNode {
 
-  // name of directory
+  private String path;
+
   private String name;
 
-  // directories of child, containing offset and timestamp
-  private final List<Long> childOffsets = new ArrayList<>();
+  private String digest;
 
-  private RootNode() {
-    // do nothing
-  }
+  private final List<DirectoryNode> subFolders = new ArrayList<>();
+
+  private final List<FileNode> files = new ArrayList<>();
+
+  private long offset;
 
   /**
    * Given a FileChannel, reads from current position to create a Node object
@@ -39,7 +39,10 @@ public class RootNode {
    * @param fileChannel the inputFile channel
    * @return the Node
    */
-  protected void fill(final FileChannel fileChannel) throws IOException {
+  protected static DirectoryNode buildFrom(final FileChannel fileChannel,
+                                           final long offset,
+                                           final String previousPath) throws IOException {
+    fileChannel.position(offset);
     ByteBuffer buf = ByteBuffer.allocate(40);
 
     //set order to little endian to read ints correctly
@@ -57,7 +60,7 @@ public class RootNode {
     // get digest of directory node
     final byte[] digestString = new byte[32];
     buf.get(digestString);
-    this.setDigest(TransformUtil.digest(digestString));
+    final String digest = TransformUtil.digest(digestString);
 
     // get directory node name
     buf = ByteBuffer.allocate(nameLength << 1);
@@ -65,10 +68,10 @@ public class RootNode {
     fileChannel.read(buf);
     buf.flip();
     buf.get(nameBuf);
-    this.setName(new String(nameBuf, StandardCharsets.UTF_8));
+    String name = new String(nameBuf, StandardCharsets.UTF_8);
 
-    if (this.getName().length() == 1 && this.getName().charAt(0) == 0) {
-      this.setName("");
+    if (name.length() == 1 && name.charAt(0) == 0) {
+      name = "";
     }
 
     // get offsets of children nodes
@@ -77,21 +80,16 @@ public class RootNode {
     fileChannel.read(buf);
     buf.flip();
 
-    for (int i = 0; i < childCount; i++) {
-      childOffsets.add(buf.getLong(i * 12 + 4));
-    }
-  }
+    //    for (int i = 0; i < childCount; i++) {
+    //      childOffsets.add(buf.getLong(i * 12 + 4));
+    //    }
+    final DirectoryNode directoryNode = DirectoryNode.builder()
+        .path(previousPath + "/" + name)
+        .name(name)
+        .digest(digest)
+        .offset(offset)
+        .build();
 
-  /**
-   * processes and fills digest, name and offset of node.
-   * @param fileChannel - input FileChannel to read from
-   * @param offset - long value that determines where the node is in file
-   * @return a RootNode object containing node's digest, name, and children offsets
-   */
-  public static RootNode from(final FileChannel fileChannel, final long offset) throws IOException {
-    fileChannel.position(offset);
-    final RootNode rootNode = new RootNode();
-    rootNode.fill(fileChannel);
-    return rootNode;
+    return directoryNode;
   }
 }
