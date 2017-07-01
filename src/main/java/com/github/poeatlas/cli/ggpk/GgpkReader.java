@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Created by NothingSoup on 6/22/17.
@@ -26,6 +28,9 @@ public class GgpkReader {
   /* inputFile we are reading */
   private final File inputFile;
   private FileChannel fileChannel;
+
+  private final Queue<DataNode> queue = new LinkedList<>();
+
 
   /**
    * constructor - processes ggpk file to find root and root children.
@@ -95,7 +100,7 @@ public class GgpkReader {
     }
 
 
-    NodeQueue.add(rootNode);
+    queue.add(rootNode);
 
     processQueue(output);
 
@@ -105,8 +110,8 @@ public class GgpkReader {
 
   @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   private void processQueue(final File output) throws IOException {
-    while (!NodeQueue.isEmpty()) {
-      final DataNode dataNode = NodeQueue.poll();
+    while (!queue.isEmpty()) {
+      final DataNode dataNode = queue.poll();
 
       final NodeTypes type = dataNode.getType();
 
@@ -128,7 +133,7 @@ public class GgpkReader {
             .map(this::processChildNode)
             .forEach(childNode -> {
               childNode.setPath(path + "/" + childNode.getName());
-              NodeQueue.add(childNode);
+              queue.add(childNode);
             });
       } else if (type == FILE) {
         // FileNode node = dataNode.asFileNode();
