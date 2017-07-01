@@ -1,25 +1,19 @@
 package com.github.poeatlas.cli.ggpk;
 
-import lombok.Builder;
+import com.github.poeatlas.cli.enums.NodeTypes;
 import lombok.Data;
-
-import java.io.File;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Created by NothingSoup on 6/29/17.
  */
 @Data
-@Builder
-public class FileNode {
-  private String path;
-
-  private String name;
-
-  private String digest;
-
-  private long size;
-
-  private long offset;
-
-  private File originalFile;
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class FileNode extends DataNode {
+  public FileNode() {
+    super();
+    setType(NodeTypes.FILE);
+  }
 }

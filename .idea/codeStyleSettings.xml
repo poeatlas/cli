@@ -105,6 +105,9 @@
           </indentOptions>
         </codeStyleSettings>
         <codeStyleSettings language="JAVA">
+          <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
+          <option name="BLOCK_COMMENT_AT_FIRST_COLUMN" value="false" />
+          <option name="LINE_COMMENT_ADD_SPACE" value="true" />
           <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="true" />
           <option name="BINARY_OPERATION_SIGN_ON_NEXT_LINE" value="true" />
           <indentOptions>

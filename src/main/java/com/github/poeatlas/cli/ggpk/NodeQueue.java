@@ -1,8 +1,7 @@
-package com.github.poeatlas.cli.utils;
-
-import com.github.poeatlas.cli.ggpk.DataNode;
+package com.github.poeatlas.cli.ggpk;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -12,6 +11,7 @@ public class NodeQueue {
   private static Queue<DataNode> queue = new LinkedList<>();
 
   private NodeQueue() {
+    // do not instantiate
   }
 
   public static final boolean add(final DataNode node) {
@@ -42,7 +42,7 @@ public class NodeQueue {
     return queue.isEmpty();
   }
 
-  public static final boolean addAll(final NodeQueue queue) {
-    return queue.addAll(queue);
+  public static final boolean addAll(final List<DataNode> list) {
+    return queue.addAll(list);
   }
 }

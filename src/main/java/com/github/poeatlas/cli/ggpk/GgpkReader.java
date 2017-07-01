@@ -1,10 +1,13 @@
 package com.github.poeatlas.cli.ggpk;
 
+import static com.github.poeatlas.cli.enums.NodeTypes.FILE;
 import static com.github.poeatlas.cli.enums.NodeTypes.PDIR;
+import static java.lang.System.out;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 import com.github.poeatlas.cli.enums.NodeTypes;
 import lombok.Data;
+import lombok.SneakyThrows;
 import lombok.ToString;
 
 import java.io.File;
@@ -20,9 +23,9 @@ import java.util.List;
 @ToString(callSuper = true)
 @Data
 public class GgpkReader {
-
   /* inputFile we are reading */
   private final File inputFile;
+  private FileChannel fileChannel;
 
   /**
    * constructor - processes ggpk file to find root and root children.
@@ -43,12 +46,12 @@ public class GgpkReader {
    */
   private void initialize() throws IOException {
     if (!inputFile.exists() || inputFile.isDirectory()) {
-      throw new IOException("file invalidi");
+      throw new IOException("file invalid");
     }
 
-    final FileChannel fileChannel = FileChannel.open(inputFile.toPath());
-    final NodeHeader nodeHeader = new NodeHeader();
+    fileChannel = FileChannel.open(inputFile.toPath());
 
+    final NodeHeader nodeHeader = new NodeHeader();
     nodeHeader.fill(fileChannel);
 
     if (nodeHeader.getType() != NodeTypes.GGPK) {
@@ -80,69 +83,87 @@ public class GgpkReader {
       throw new IOException("no PDIR found");
     }
 
-    final RootNode rootNode = RootNode.from(fileChannel, ggpkPartition.getOffset());
-    if (!rootNode.getName().equals("")) {
-      // System.out.println("Name of Root Directory is not blank");
-    }
-
-    final DirectoryNode rootDirectory = DirectoryNode.builder()
-        .path("")
-        .name(rootNode.getName())
-        .digest(rootNode.getDigest())
-        .offset(ggpkPartition.getOffset())
+    final DirectoryNode rootNode = DirectoryNode.builder()
+        .withChannel(fileChannel)
+        .withOffset(ggpkPartition.getOffset())
         .build();
 
-    processNode(fileChannel, rootNode.getChildOffsets(), rootDirectory);
+    // final RootNode rootNode = RootNode.from(fileChannel, ggpkPartition.getOffset());
+    final String rootName = rootNode.getName();
+    if (!rootName.isEmpty()) {
+      throw new IOException("Name of Root Directory is not blank: " + rootName);
+    }
+
+
+    NodeQueue.add(rootNode);
+
+    processQueue(output);
+
+    // processDirectoryNode(fileChannel, rootNode.getChildOffsets(), rootDirectory);
+
   }
 
-  /**
-   * Determines type of current node and calls respective processing method.
-   *
-   * @param fileChannel      channel for ggpk input file
-   * @param partitionOffsets array of longs of child offsets for the node
-   * @param directoryNode    directory node of parent--contains the children nodes we want ot check
-   * @throws IOException issue with filechannel
-   */
-  private void processNode(final FileChannel fileChannel,
-                           final List<Long> partitionOffsets,
-                           final DirectoryNode directoryNode) throws IOException {
-    final NodeHeader nodeHeader = new NodeHeader();
-    for (final long offset : partitionOffsets) {
-      fileChannel.position(offset);
+  @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+  private void processQueue(final File output) throws IOException {
+    while (!NodeQueue.isEmpty()) {
+      final DataNode dataNode = NodeQueue.poll();
 
-      // fill node header information + calculate its offset
-      nodeHeader.fill(fileChannel, offset);
+      final NodeTypes type = dataNode.getType();
 
-      final NodeTypes nodeType = nodeHeader.getType();
+      out.println(dataNode);
 
-      switch (nodeType) {
-        case PDIR:
-          processDirectoryNode(fileChannel, directoryNode, nodeHeader);
-          break;
-        case FILE:
-          break;
-        default:
+      if (type == PDIR) {
+        final DirectoryNode node = dataNode.asDirectoryNode();
+        final String path = node.getPath();
+        final File outFile = new File(output, path);
+
+        if ((!outFile.exists() || outFile.exists() && !outFile.isDirectory())
+            && !outFile.mkdirs()) {
+          throw new IOException("Could not create directory: " + path);
+        }
+
+        // find children nodes and add to queue
+        node.getChildOffsets()
+            .stream()
+            .map(this::processChildNode)
+            .forEach(childNode -> {
+              childNode.setPath(path + "/" + childNode.getName());
+              NodeQueue.add(childNode);
+            });
+      } else if (type == FILE) {
+        // FileNode node = dataNode.asFileNode();
+        // File outFile = new File(output, node.getPath());
+
+        // find contents of file, get bytes, and extract
+      } else {
+        // something went wrong, explode
       }
     }
+
   }
 
-  /**
-   * Derives a directory node of current node.
-   *
-   * @param fileChannel         channel of input ggpk file
-   * @param parentDirectoryNode directory node of the parent of current node
-   * @param nodeHeader          header information of current node
-   * @throws IOException issue with filechannel
-   */
-  private void processDirectoryNode(final FileChannel fileChannel,
-                                    final DirectoryNode parentDirectoryNode,
-                                    final NodeHeader nodeHeader) throws IOException {
+  @SneakyThrows
+  private DataNode processChildNode(final long offset) {
+    final NodeHeader nodeHeader = new NodeHeader();
 
-    // TODO: complete this method!
-    // create DirectoryNode from filechannel's offset of current node
-    /* final DirectoryNode directoryNode = */ DirectoryNode.buildFrom(fileChannel,
-        nodeHeader.getOffset(),
-        parentDirectoryNode.getPath());
+    fileChannel.position(offset);
+
+    // fill node header information + calculate its offset
+    nodeHeader.fill(fileChannel, offset);
+
+    final NodeTypes nodeType = nodeHeader.getType();
+
+    switch (nodeType) {
+      case PDIR:
+        return DirectoryNode.builder()
+            .withOffset(nodeHeader.getOffset())
+            .withChannel(fileChannel)
+            .build();
+      case FILE:
+        throw new IOException("TODO");
+      default:
+        throw new IOException("Invalid node type: " + nodeType);
+    }
   }
 
   /**
