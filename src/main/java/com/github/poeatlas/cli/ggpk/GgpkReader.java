@@ -128,13 +128,11 @@ public class GgpkReader {
         }
 
         // find children nodes and add to queue
-        node.getChildOffsets()
-            .stream()
-            .map(this::processChildNode)
-            .forEach(childNode -> {
-              childNode.setPath(path + "/" + childNode.getName());
-              queue.add(childNode);
-            });
+        for (final long offset : node.getChildOffsets()) {
+          DataNode childNode = processChildNode(offset);
+          childNode.setPath(path + "/" + childNode.getName());
+          queue.add(childNode);
+        }
       } else if (type == FILE) {
         // FileNode node = dataNode.asFileNode();
         // File outFile = new File(output, node.getPath());
