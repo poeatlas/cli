@@ -23,8 +23,6 @@ import java.util.List;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 class DirectoryNode extends DataNode {
-  public static final String EMPTY_UTF16_STR = String.valueOf(new char[]{'\0', '\0'});
-
   private List<Long> childOffsets;
 
   public DirectoryNode() {
