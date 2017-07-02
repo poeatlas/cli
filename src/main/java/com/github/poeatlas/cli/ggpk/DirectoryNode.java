@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.ToString;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -54,6 +55,9 @@ class DirectoryNode extends DataNode {
 
     @SneakyThrows
     public final DirectoryNode build() {
+      if (channel == null) {
+        throw new IOException("Channel is null");
+      }
       channel.position(offset);
 
       ByteBuffer buf = ByteBuffer.allocate(40);
@@ -78,7 +82,7 @@ class DirectoryNode extends DataNode {
       // get directory node name
       final char[] nameBuf = new char[nameLength];
 
-      buf = ByteBuffer.allocate(nameLength << 1);
+      buf = ByteBuffer.allocate(nameLength * 2);
       buf.order(LITTLE_ENDIAN);
 
       channel.read(buf);
@@ -111,9 +115,8 @@ class DirectoryNode extends DataNode {
       node.setDigest(digest);
       node.setPath(""); // for you, PMD.
       node.setName(name);
-      node.setOffset(offset);
+      // node.setOffset(offset);
       node.setChildOffsets(childOffsets);
-      node.setChannel(channel);
 
       return node;
 

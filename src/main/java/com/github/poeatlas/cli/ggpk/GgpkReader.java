@@ -6,6 +6,7 @@ import static java.lang.System.out;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 import com.github.poeatlas.cli.enums.NodeTypes;
+import lombok.Cleanup;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.ToString;
@@ -14,10 +15,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Queue;
 
 /**
  * Created by NothingSoup on 6/22/17.
@@ -29,7 +31,7 @@ public class GgpkReader {
   private final File inputFile;
   private FileChannel fileChannel;
 
-  private final Queue<DataNode> queue = new LinkedList<>();
+  private final Deque<DataNode> dequeue = new ArrayDeque<>(50);
 
 
   /**
@@ -71,7 +73,7 @@ public class GgpkReader {
    * @throws IOException - if file is invalid
    */
   public void writeTo(final File output) throws IOException {
-    final FileChannel fileChannel = FileChannel.open(inputFile.toPath());
+    @Cleanup final FileChannel fileChannel = FileChannel.open(inputFile.toPath());
     final List<Long> partitionOffsets = getPartitionOffsets(fileChannel);
     final NodeHeader ggpkPartition = new NodeHeader();
 
@@ -100,18 +102,15 @@ public class GgpkReader {
     }
 
 
-    queue.add(rootNode);
+    dequeue.addLast(rootNode);
 
     processQueue(output);
-
-    // processDirectoryNode(fileChannel, rootNode.getChildOffsets(), rootDirectory);
-
   }
 
   @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   private void processQueue(final File output) throws IOException {
-    while (!queue.isEmpty()) {
-      final DataNode dataNode = queue.poll();
+    while (!dequeue.isEmpty()) {
+      final DataNode dataNode = dequeue.pollLast();
 
       final NodeTypes type = dataNode.getType();
 
@@ -127,26 +126,34 @@ public class GgpkReader {
           throw new IOException("Could not create directory: " + path);
         }
 
-        // find children nodes and add to queue
+        // find children nodes and add to dequeue
         for (final long offset : node.getChildOffsets()) {
-          DataNode childNode = processChildNode(offset);
+          final DataNode childNode = processDirectoryNode(offset);
           childNode.setPath(path + "/" + childNode.getName());
-          queue.add(childNode);
+          dequeue.addLast(childNode);
         }
       } else if (type == FILE) {
-        // FileNode node = dataNode.asFileNode();
-        // File outFile = new File(output, node.getPath());
+        final FileNode node = dataNode.asFileNode();
+        final File outFile = new File(output, node.getPath());
 
         // find contents of file, get bytes, and extract
+        extractFileNode(node, outFile);
       } else {
         // something went wrong, explode
       }
     }
+  }
 
+  private void extractFileNode(final FileNode node, final File outFile) throws IOException {
+    @Cleanup final FileChannel outputChannel = FileChannel.open(outFile.toPath(),
+        StandardOpenOption.WRITE,
+        StandardOpenOption.CREATE);
+
+    fileChannel.transferTo(node.getContentOffset(), node.getSize(), outputChannel);
   }
 
   @SneakyThrows
-  private DataNode processChildNode(final long offset) {
+  private DataNode processDirectoryNode(final long offset) {
     final NodeHeader nodeHeader = new NodeHeader();
 
     fileChannel.position(offset);
@@ -163,7 +170,11 @@ public class GgpkReader {
             .withChannel(fileChannel)
             .build();
       case FILE:
-        throw new IOException("TODO");
+        return FileNode.builder()
+            .withOffset(nodeHeader.getOffset())
+            .withChannel(fileChannel)
+            .withNodeHeader(nodeHeader)
+            .build();
       default:
         throw new IOException("Invalid node type: " + nodeType);
     }

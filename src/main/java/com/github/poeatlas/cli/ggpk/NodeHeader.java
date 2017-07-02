@@ -21,8 +21,8 @@ class NodeHeader {
   public static final int NODE_HEADER_BYTE_SIZE = 8;
 
   /* bytes of the node (inputFile). */
-  @Getter
-  @Setter
+  // @Getter
+  // @Setter
   private int length;
 
   /* the node (inputFile) type. */
@@ -65,6 +65,7 @@ class NodeHeader {
 
     // gets header length
     this.setLength(buf.getInt());
+    // buf.position(buf.position()+4);
 
     // gets header type (is a 4 byte string)
     final byte[] fileType = new byte[4];
