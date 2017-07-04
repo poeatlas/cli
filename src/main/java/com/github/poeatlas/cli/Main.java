@@ -1,7 +1,5 @@
 package com.github.poeatlas.cli;
 
-import static java.lang.System.out;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.github.poeatlas.cli.ggpk.GgpkReader;
@@ -19,14 +17,13 @@ public class Main {
   /**
    * Processes GGPK files.
    */
-  public static void main(final String[] args) {
+  public static void main(final String[] args) throws IOException {
     final Main main = new Main();
 
     try {
       System.exit(main.processGgpk(args));
-    } catch (Throwable th) {
-      log.error("Failed to complete extraction of GGPK file.");
-      log.debug(th.getMessage(), th);
+    } catch (Exception ex) {
+      log.error("Failed to complete extraction of GGPK file.", ex);
     }
   }
 
@@ -51,21 +48,23 @@ public class Main {
 
     // sets the verbosity of output for everything
     if (opt.has(verbose)) {
-      Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+      final Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
       root.setLevel(opt.valueOf(verbose));
     }
 
     if (!opt.has(input) || !opt.has(output)) {
-      parser.printHelpOn(out);
+      parser.printHelpOn(System.out);
       return 1;
     }
 
     final File inputFile = opt.valueOf(input);
     final File outputFile = opt.valueOf(output);
 
+    log.info("Input file is: {}", inputFile.getPath());
+    log.info("Output directory is: {}", outputFile.getPath());
+
     final GgpkReader ggpkReader = new GgpkReader(inputFile);
     ggpkReader.writeTo(outputFile);
-
 
     return 0;
   }

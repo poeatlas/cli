@@ -2,7 +2,6 @@ package com.github.poeatlas.cli.ggpk;
 
 import static com.github.poeatlas.cli.enums.NodeTypes.FILE;
 import static com.github.poeatlas.cli.enums.NodeTypes.PDIR;
-import static java.lang.System.out;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 import com.github.poeatlas.cli.enums.NodeTypes;
@@ -10,6 +9,7 @@ import lombok.Cleanup;
 import lombok.Data;
 import lombok.SneakyThrows;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import java.util.List;
  */
 @ToString(callSuper = true)
 @Data
+@Slf4j
 public class GgpkReader {
   /* inputFile we are reading */
   private final File inputFile;
@@ -77,11 +78,16 @@ public class GgpkReader {
     final List<Long> partitionOffsets = getPartitionOffsets(fileChannel);
     final NodeHeader ggpkPartition = new NodeHeader();
 
-    // itereate through nodes to find children and offsets
+    log.trace(partitionOffsets.toString());
+
+    // iterate through nodes to find children and offsets
     for (final long offset : partitionOffsets) {
       ggpkPartition.fill(fileChannel, offset);
 
+      log.debug(ggpkPartition.toString());
+
       if (ggpkPartition.getType() == PDIR) {
+        log.info("Found the Root GGPK Partition.");
         break;
       }
     }
@@ -95,12 +101,13 @@ public class GgpkReader {
         .withOffset(ggpkPartition.getOffset())
         .build();
 
+    log.debug(rootNode.toString());
+
     // final RootNode rootNode = RootNode.from(fileChannel, ggpkPartition.getOffset());
     final String rootName = rootNode.getName();
     if (!rootName.isEmpty()) {
       throw new IOException("Name of Root Directory is not blank: " + rootName);
     }
-
 
     dequeue.addLast(rootNode);
 
@@ -109,12 +116,14 @@ public class GgpkReader {
 
   @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
   private void processQueue(final File output) throws IOException {
+    log.info("Starting to process GGPK files...");
+
     while (!dequeue.isEmpty()) {
       final DataNode dataNode = dequeue.pollLast();
 
       final NodeTypes type = dataNode.getType();
 
-      out.println(dataNode);
+      log.debug(dataNode.toString());
 
       if (type == PDIR) {
         final DirectoryNode node = dataNode.asDirectoryNode();
@@ -140,8 +149,10 @@ public class GgpkReader {
         extractFileNode(node, outFile);
       } else {
         // something went wrong, explode
+        throw new IOException("not a PDIR or a FILE type");
       }
     }
+    log.info("Finished processing GGPK files.");
   }
 
   private void extractFileNode(final FileNode node, final File outFile) throws IOException {
@@ -160,6 +171,8 @@ public class GgpkReader {
 
     // fill node header information + calculate its offset
     nodeHeader.fill(fileChannel, offset);
+
+    log.debug(nodeHeader.toString());
 
     final NodeTypes nodeType = nodeHeader.getType();
 

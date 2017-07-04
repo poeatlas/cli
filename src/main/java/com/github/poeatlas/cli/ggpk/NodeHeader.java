@@ -17,6 +17,7 @@ import java.nio.channels.FileChannel;
  */
 @ToString
 @Data
+// @Slf4j
 class NodeHeader {
   public static final int NODE_HEADER_BYTE_SIZE = 8;
 
@@ -65,7 +66,6 @@ class NodeHeader {
 
     // gets header length
     this.setLength(buf.getInt());
-    // buf.position(buf.position()+4);
 
     // gets header type (is a 4 byte string)
     final byte[] fileType = new byte[4];
