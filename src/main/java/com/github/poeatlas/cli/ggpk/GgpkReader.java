@@ -133,8 +133,8 @@ public class GgpkReader {
         final String path = node.getPath();
         final File outFile = new File(output, path);
 
-        if (filter.directoryFilter(node) &&
-            ((!outFile.exists() || outFile.exists() && !outFile.isDirectory())
+        if (filter.directoryFilter(node)
+            && ((!outFile.exists() || outFile.exists() && !outFile.isDirectory())
             && !outFile.mkdirs())) {
           throw new IOException("Could not create directory: " + path);
         }
