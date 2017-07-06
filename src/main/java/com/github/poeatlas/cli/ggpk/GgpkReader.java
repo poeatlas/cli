@@ -118,20 +118,24 @@ public class GgpkReader {
   private void processQueue(final File output) throws IOException {
     log.info("Starting to process GGPK files...");
 
+    final NodeFilter filter = new NodeFilter();
+
     while (!dequeue.isEmpty()) {
       final DataNode dataNode = dequeue.pollLast();
 
       final NodeTypes type = dataNode.getType();
-
-      log.debug(dataNode.toString());
+      if (log.isDebugEnabled()) {
+        log.debug(dataNode.toString());
+      }
 
       if (type == PDIR) {
         final DirectoryNode node = dataNode.asDirectoryNode();
         final String path = node.getPath();
         final File outFile = new File(output, path);
 
-        if ((!outFile.exists() || outFile.exists() && !outFile.isDirectory())
-            && !outFile.mkdirs()) {
+        if (filter.directoryFilter(node) &&
+            ((!outFile.exists() || outFile.exists() && !outFile.isDirectory())
+            && !outFile.mkdirs())) {
           throw new IOException("Could not create directory: " + path);
         }
 
@@ -146,12 +150,15 @@ public class GgpkReader {
         final File outFile = new File(output, node.getPath());
 
         // find contents of file, get bytes, and extract
-        extractFileNode(node, outFile);
+        if (filter.fileFilter(node)) {
+          extractFileNode(node, outFile);
+        }
       } else {
         // something went wrong, explode
         throw new IOException("not a PDIR or a FILE type");
       }
     }
+
     log.info("Finished processing GGPK files.");
   }
 
@@ -172,7 +179,9 @@ public class GgpkReader {
     // fill node header information + calculate its offset
     nodeHeader.fill(fileChannel, offset);
 
-    log.debug(nodeHeader.toString());
+    if (log.isDebugEnabled()) {
+      log.debug(nodeHeader.toString());
+    }
 
     final NodeTypes nodeType = nodeHeader.getType();
 
