@@ -43,6 +43,8 @@ dependencies {
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
   }
 
+  compile fileTree(dir: 'libs', include: '*.jar')
+
   compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
 }
 
