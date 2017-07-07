@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":dds:test" external.linked.project.path="$MODULE_DIR$/../../../dds" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="cli" external.system.module.type="sourceSet" external.system.module.version="0.0.1-SNAPSHOT" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output-test url="file://$MODULE_DIR$/../../../dds/build/classes/test" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../dds/src/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../../dds/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../dds/src/test/resources" type="java-test-resource" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="dds_main" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../dds/libs/dds-1.0.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.1.11" level="project" />
+    <orderEntry type="library" name="Gradle: net.sf.jopt-simple:jopt-simple:5.0.3" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.1.11" level="project" />
+  </component>
+  <component name="TestModuleProperties" production-module="dds_main" />
+</module>

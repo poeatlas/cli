@@ -1,8 +1,8 @@
-package com.github.poeatlas.cli;
+package com.github.poeatlas.cli.extract;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import com.github.poeatlas.cli.ggpk.GgpkReader;
+import com.github.poeatlas.cli.extract.ggpk.GgpkReader;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;

@@ -3,22 +3,13 @@
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output-test url="file://$MODULE_DIR$/../../build/classes/test" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../src/test">
-      <sourceFolder url="file://$MODULE_DIR$/../../src/test/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/../../src/test/resources" type="java-test-resource" />
+    <content url="file://$MODULE_DIR$/../../extract/src/test">
+      <sourceFolder url="file://$MODULE_DIR$/../../extract/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../../extract/src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="cli_main" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../libs/dds-1.0.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.1.11" level="project" />
     <orderEntry type="library" name="Gradle: net.sf.jopt-simple:jopt-simple:5.0.3" level="project" />

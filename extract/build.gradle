@@ -1,0 +1,22 @@
+buildscript {
+  ext {
+    startClass = 'com.github.poeatlas.cli.extract.Main'
+  }
+
+  repositories {
+    mavenCentral()
+  }
+}
+
+jar {
+  baseName = 'ggpk-extractor'
+  version = "${version}"
+
+  manifest {
+    attributes "Main-Class": "${startClass}"
+  }
+
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
+}

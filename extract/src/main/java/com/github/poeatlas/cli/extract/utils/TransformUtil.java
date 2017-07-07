@@ -1,4 +1,4 @@
-package com.github.poeatlas.cli.utils;
+package com.github.poeatlas.cli.extract.utils;
 
 /**
  * Created by NothingSoup on 6/28/17.

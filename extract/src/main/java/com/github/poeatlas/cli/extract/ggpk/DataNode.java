@@ -1,6 +1,6 @@
-package com.github.poeatlas.cli.ggpk;
+package com.github.poeatlas.cli.extract.ggpk;
 
-import com.github.poeatlas.cli.enums.NodeTypes;
+import com.github.poeatlas.cli.extract.enums.NodeTypes;
 import lombok.Data;
 import lombok.ToString;
 

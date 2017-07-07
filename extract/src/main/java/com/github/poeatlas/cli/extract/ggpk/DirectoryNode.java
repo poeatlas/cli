@@ -1,9 +1,9 @@
-package com.github.poeatlas.cli.ggpk;
+package com.github.poeatlas.cli.extract.ggpk;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
-import com.github.poeatlas.cli.enums.NodeTypes;
-import com.github.poeatlas.cli.utils.TransformUtil;
+import com.github.poeatlas.cli.extract.enums.NodeTypes;
+import com.github.poeatlas.cli.extract.utils.TransformUtil;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

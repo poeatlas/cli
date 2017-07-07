@@ -1,92 +1,85 @@
 buildscript {
-  ext {
-    startClass = 'com.github.poeatlas.cli.Main'
-  }
-}
-plugins {
-  id 'java'
-  id 'idea'
-  id 'eclipse'
-  id 'checkstyle'
-  id 'pmd'
-  id 'findbugs'
-  id 'net.researchgate.release' version '2.6.0'
-  id 'nebula.lint' version '7.4.0'
-}
-repositories {
-  mavenCentral()
-  jcenter()
-}
-
-jar {
-  baseName = 'poeatlas-cli'
-  version = "${version}"
-
-  manifest {
-    attributes "Main-Class": "${startClass}"
+  repositories {
+    jcenter()
   }
 
-  from {
-    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  dependencies {
+    classpath 'net.researchgate:gradle-release:2.4.0'
+    classpath 'com.netflix.nebula:gradle-lint-plugin:7.8.0'
   }
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+allprojects {
+  apply plugin: 'java'
+  apply plugin: 'idea'
+  apply plugin: 'eclipse'
+  apply plugin: 'checkstyle'
+  apply plugin: 'pmd'
+  apply plugin: 'findbugs'
+  apply plugin: 'net.researchgate.release'
+  apply plugin: 'nebula.lint'
 
-dependencies {
-  gradleLint.ignore {
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
-
-    // logging
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
+  repositories {
+    mavenCentral()
+    jcenter()
   }
 
-  compile fileTree(dir: 'libs', include: '*.jar')
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
 
-  compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
-}
+  dependencies {
+    gradleLint.ignore {
+      compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
 
-eclipse {
-  classpath {
-    containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
-    containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+      // logging
+      compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+      compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
+    }
+
+    compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
   }
-}
 
-checkstyle {
-  toolVersion = '7.8.1'
-  showViolations = true
-}
-
-pmd {
-  ruleSets = [] // This overwrites the rules that are being added
-  ruleSetFiles = rootProject.files("config/pmd/pmd.xml")
-}
-
-tasks.withType(Checkstyle) {
-  reports {
-    html.destination rootProject.file("build/reports/checkstyle.html")
+  eclipse {
+    classpath {
+      containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
+      containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
+    }
   }
-}
 
-tasks.withType(FindBugs) {
-  reports {
-    xml.enabled = false
-    html.enabled = true
+  checkstyle {
+    toolVersion = '7.8.1'
+    showViolations = true
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
   }
-}
 
-tasks.withType(Checkstyle).each { checkstyleTask ->
-  checkstyleTask.doLast {
-    reports.all { report ->
-      def outputFile = report.destination
-      if (outputFile.exists() && outputFile.text.contains("<error ")) {
-        throw new GradleException("There were checkstyle warnings! For more info check inputFile://${reports.html.destination}")
+  pmd {
+    ruleSets = [] // This overwrites the rules that are being added
+    ruleSetFiles = rootProject.files("config/pmd/pmd.xml")
+  }
+
+  tasks.withType(Checkstyle) {
+    reports {
+      html.destination rootProject.file("build/reports/checkstyle.html")
+    }
+  }
+
+  tasks.withType(FindBugs) {
+    reports {
+      xml.enabled = false
+      html.enabled = true
+    }
+  }
+
+  tasks.withType(Checkstyle).each { checkstyleTask ->
+    checkstyleTask.doLast {
+      reports.all { report ->
+        def outputFile = report.destination
+        if (outputFile.exists() && outputFile.text.contains("<error ")) {
+          throw new GradleException("There were checkstyle warnings! For more info check inputFile://${reports.html.destination}")
+        }
       }
     }
   }
-}
 
-gradleLint.rules = ['all-dependency']
+  gradleLint.rules = ['all-dependency']
+}

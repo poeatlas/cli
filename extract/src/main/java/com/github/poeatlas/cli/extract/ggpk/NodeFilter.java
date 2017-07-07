@@ -1,4 +1,4 @@
-package com.github.poeatlas.cli.ggpk;
+package com.github.poeatlas.cli.extract.ggpk;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

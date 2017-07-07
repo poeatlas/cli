@@ -1,4 +1,4 @@
-package com.github.poeatlas.cli.exceptions;
+package com.github.poeatlas.cli.extract.exceptions;
 
 import java.io.IOException;
 

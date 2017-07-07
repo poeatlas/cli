@@ -1,6 +1,6 @@
-package com.github.poeatlas.cli.enums;
+package com.github.poeatlas.cli.extract.enums;
 
-import com.github.poeatlas.cli.exceptions.InvalidNodeTypeException;
+import com.github.poeatlas.cli.extract.exceptions.InvalidNodeTypeException;
 
 import java.nio.charset.StandardCharsets;
 

@@ -1,10 +1,8 @@
-package com.github.poeatlas.cli.ggpk;
+package com.github.poeatlas.cli.extract.ggpk;
 
-import static com.github.poeatlas.cli.enums.NodeTypes.FILE;
-import static com.github.poeatlas.cli.enums.NodeTypes.PDIR;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
-import com.github.poeatlas.cli.enums.NodeTypes;
+import com.github.poeatlas.cli.extract.enums.NodeTypes;
 import lombok.Cleanup;
 import lombok.Data;
 import lombok.SneakyThrows;
@@ -86,13 +84,13 @@ public class GgpkReader {
 
       log.debug(ggpkPartition.toString());
 
-      if (ggpkPartition.getType() == PDIR) {
+      if (ggpkPartition.getType() == NodeTypes.PDIR) {
         log.info("Found the Root GGPK Partition.");
         break;
       }
     }
 
-    if (ggpkPartition.getType() != PDIR) {
+    if (ggpkPartition.getType() != NodeTypes.PDIR) {
       throw new IOException("no PDIR found");
     }
 
@@ -128,7 +126,7 @@ public class GgpkReader {
         log.debug(dataNode.toString());
       }
 
-      if (type == PDIR) {
+      if (type == NodeTypes.PDIR) {
         final DirectoryNode node = dataNode.asDirectoryNode();
         final String path = node.getPath();
         final File outFile = new File(output, path);
@@ -145,7 +143,7 @@ public class GgpkReader {
           childNode.setPath(path + "/" + childNode.getName());
           dequeue.addLast(childNode);
         }
-      } else if (type == FILE) {
+      } else if (type == NodeTypes.FILE) {
         final FileNode node = dataNode.asFileNode();
         final File outFile = new File(output, node.getPath());
 
