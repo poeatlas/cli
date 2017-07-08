@@ -11,6 +11,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -32,6 +33,13 @@ public class Main {
   //    Foo.png with mipmap 3
   public static void main(final String[] args) throws IOException {
     final Main app = new Main();
+
+    /*
+    java -jar dds-decoder-0.0.1-SNAPSHOT.jar ~/PoE/Art/2DArt/Atlas/Atlas*.dds
+    [INFO ]  [/home/blei/PoE/Art/2DArt/Atlas/AtlasBlank.dds, /home/blei/PoE/Art/2DArt/Atlas/Atlas.dds]
+
+     */
+    log.info("{}", Arrays.asList(args));
 
     app.run(new File(args[0]));
   }
