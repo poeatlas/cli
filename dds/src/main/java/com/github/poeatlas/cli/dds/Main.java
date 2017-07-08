@@ -1,17 +1,16 @@
 package com.github.poeatlas.cli.dds;
 
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
-
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.brotli.dec.BrotliInputStream;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -28,76 +27,52 @@ public class Main {
   public static void main(final String[] args) throws IOException {
     final Main app = new Main();
 
-    app.run(new File("/home/NothingSoup/POE/output/Art/2DItems/Maps/AtlasMaps/Academy3.dds"));
+    app.run(new File(args[0]));
   }
 
   public void run(final File file) throws IOException {
-    InputStream is = new FileInputStream(file);
+    @Cleanup final InputStream is = FileUtils.openInputStream(file);
 
-    final byte[] sizeBuf = new byte[4];
+    final byte[] decSizeBytes = new byte[4];
+    is.read(decSizeBytes);
 
-    is.read(sizeBuf,0,4);
-    Conversion conv = new Conversion();
-    final int size = conv.byteArrayToInt(0);
-    // buffer for header to get size of decoded file
-    // ByteBuffer buf = ByteBuffer.allocate(4);
+    // converts 4 big endian ordered bytes to a little endian int
+    // have to & 0xFF to eliminate the conversion from byte to int
+    final int size = ((decSizeBytes[3] & 0xFF) << 24)
+                     | ((decSizeBytes[2] & 0xFF) << 16)
+                     | ((decSizeBytes[1] & 0xFF) << 8)
+                     | (decSizeBytes[0] & 0xFF);
 
-    // buf.order(LITTLE_ENDIAN);
-    // fileChannel.read(buf);
-
-    // buf.flip();
-
-    // final int size = buf.getInt();
-
-    final BrotliInputStream brotliIS = new BrotliInputStream(is);
-    // final ReadableByteChannel brotliChannel = Channels.newChannel(brotliIS);
-
-    byte[] destBuffer = new byte[size];
-    // ByteBuffer brotliBuf = ByteBuffer.wrap(destBuffer);
-
-    InputStream decIS = new ByteArrayInputStream(destBuffer);
 
     ImageReader imageReader = ImageIO.getImageReadersBySuffix(DDS).next();
-    ImageInputStream iis = ImageIO.createImageInputStream(decIS);
 
-    BufferedImage image;
-    File output;
+    @Cleanup final BrotliInputStream brotliIS = new BrotliInputStream(is);
+    final ByteArrayInputStream bais = new ByteArrayInputStream(IOUtils.readFully(brotliIS, size));
+    @Cleanup final ImageInputStream iis = ImageIO.createImageInputStream(bais);
+    String outputPath = file.getPath().replaceFirst("\\.dds$", ".png");
+
+    if (!outputPath.endsWith(".png")) {
+      outputPath += ".png";
+    }
+
+    final File output = new File(outputPath);
 
     imageReader.setInput(iis);
 
-    final int maxImages = imageReader.getNumImages(true);
-    System.out.println("max images: " + maxImages);
-    for (int i = 0; i < maxImages; i++) {
-      String prefix = maxImages > 1 ? i + "." : "";
+    BufferedImage     image = readMipmap(bais, imageReader, 4);
+    ImageIO.write(image, PNG, output);
+    image = readMipmap(bais, imageReader, 2);
+    ImageIO.write(image, PNG, output);
 
-      output = changeExt(file, prefix + PNG);
-      image = imageReader.read(i);
-      System.out.println("current image: " + image);
-      ImageIO.write(image, PNG, output);
-    }
   }
 
-  private File changeExt(final File file, final String newName) throws IOException {
-    String path = file.getPath(); // ex: 2ditems/atlasmaps/channel.dds
-    String name = file.getName();
-    int periodIndex = name.lastIndexOf('.');
-    int slashIndex = path.lastIndexOf('/');
+  /** To read a mipmap, have to reset the original stream so that a mipmap can be read. */
+  private BufferedImage readMipmap(final ByteArrayInputStream stream,
+                                   final ImageReader reader,
+                                   final int mipmap)
+      throws IOException {
+    stream.reset();
 
-    if (periodIndex != -1) {
-      name = name.substring(0, periodIndex);
-    }
-    // new folder for multi images
-    String newPath = path.substring(0, slashIndex) + '/' + name + '/';
-    path = newPath + newName; // ex: 2ditems/atlasmaps/channel/1.png
-
-    final File output = new File(path);
-    File parentPath = output.getParentFile();
-    // create new folder for images
-    if (!parentPath.exists() && !parentPath.mkdir()) {
-      throw new IOException("Failed to create directory: " + output.getPath());
-    } else {
-      return output;
-    }
+    return reader.read(mipmap);
   }
-
 }
