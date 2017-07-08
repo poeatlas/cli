@@ -23,7 +23,10 @@ public class Main {
   private final static String DDS = "dds";
   private final static String PNG = "png";
 
-
+  // TODO:
+  // java -jar dds-decoder.jar --mipmap 1 .../Atlas.dds -> creates Atlas.png with mipmap 1
+  // java -jar dds-decoder.jar --mipmap 1 .../Atlas.dds ..../Foo.dds -> creates Atlas.png and
+  //                                                                    Foo.png with mipmap 1
   public static void main(final String[] args) throws IOException {
     final Main app = new Main();
 
