@@ -37,6 +37,10 @@ allprojects {
     }
 
     compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
+
+    // https://mvnrepository.com/artifact/org.brotli/dec
+    compile group: 'org.brotli', name: 'dec', version: '0.1.2'
+
   }
 
   eclipse {
