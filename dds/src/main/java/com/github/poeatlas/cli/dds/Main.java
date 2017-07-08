@@ -24,9 +24,12 @@ public class Main {
   private final static String PNG = "png";
 
   // TODO:
-  // java -jar dds-decoder.jar --mipmap 1 .../Atlas.dds -> creates Atlas.png with mipmap 1
-  // java -jar dds-decoder.jar --mipmap 1 .../Atlas.dds ..../Foo.dds -> creates Atlas.png and
-  //                                                                    Foo.png with mipmap 1
+  // java -jar dds-decoder.jar .../Atlas*.dds-> if there is a Atlas1.dds and Atlas2.dds, creates
+  //    Atlas1.png with mipmap 0 and Atlas2.png with mipmap 0.
+  // java -jar dds-decoder.jar --mipmap 1 .../Atlas*.dds -> creates Atlas1.png and Atlas2.png
+  //    with their mipmap 1
+  // java -jar dds-decoder.jar ./Atlas.dds:1 .../Foo.dds:3 -> creates Atlas.png with mipmap 1 and
+  //    Foo.png with mipmap 3
   public static void main(final String[] args) throws IOException {
     final Main app = new Main();
 
