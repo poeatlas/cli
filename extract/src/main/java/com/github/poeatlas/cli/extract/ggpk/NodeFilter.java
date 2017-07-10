@@ -1,5 +1,7 @@
 package com.github.poeatlas.cli.extract.ggpk;
 
+import com.github.poeatlas.cli.extract.enums.NodeTypes;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,14 +19,25 @@ public class NodeFilter {
    * @param node directory node containing path information to be filtered
    * @return boolean true if directory passes filter
    */
-  public boolean directoryFilter(final DirectoryNode node) {
+  private boolean directoryFilter(final DirectoryNode node) {
     final String nodePath = node.getPath().toLowerCase();
 
-    return "/art/2dart/atlas".equals(nodePath)
-           || "/textures/interface/2d".equals(nodePath)
-           || "/art/2ditems/maps/atlasmaps".equals(nodePath)
-           || "/art/2ditems/currency".equals(nodePath)
-           || "/data".equals(nodePath);
+    return "/art/2dart/atlas".startsWith(nodePath)
+           || "/textures/interface/2d".startsWith(nodePath)
+           || "/art/2ditems/maps/atlasmaps".startsWith(nodePath)
+           || "/art/2ditems/currency".startsWith(nodePath)
+           || "/data".startsWith(nodePath);
+  }
+
+  /**
+   * filters out unwanted directories and files.
+   *
+   * @param node node to check
+   * @return true if node is wanted, false if node is unwanted
+   */
+  public boolean doFilter(final DataNode node) {
+    return (node.getType() == NodeTypes.PDIR && directoryFilter(node.asDirectoryNode()))
+           || (node.getType() == NodeTypes.FILE && fileFilter(node.asFileNode()));
   }
 
   /**
@@ -33,7 +46,7 @@ public class NodeFilter {
    * @param node a file node to be passed through the filter
    * @return boolean true if file passes filter
    */
-  public boolean fileFilter(final FileNode node) {
+  private boolean fileFilter(final FileNode node) {
     final String filePath = node.getPath().toLowerCase();
 
     return "/art/2dart/atlas/atlas.dds".equals(filePath)

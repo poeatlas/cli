@@ -136,9 +136,8 @@ public class GgpkReader {
         final String path = node.getPath();
         final File outFile = new File(output, path);
 
-        if (filter.directoryFilter(node)
-            && ((!outFile.exists() || outFile.exists() && !outFile.isDirectory())
-                && !outFile.mkdirs())) {
+        if ((!outFile.exists() || outFile.exists() && !outFile.isDirectory())
+            && !outFile.mkdirs()) {
           throw new IOException("Could not create directory: " + path);
         }
 
@@ -146,16 +145,17 @@ public class GgpkReader {
         for (final long offset : node.getChildOffsets()) {
           final DataNode childNode = processDirectoryNode(offset);
           childNode.setPath(path + "/" + childNode.getName());
-          queue.add(childNode);
+          if (filter.doFilter(childNode)) {
+            queue.add(childNode);
+          }
         }
       } else if (type == NodeTypes.FILE) {
         final FileNode node = dataNode.asFileNode();
         final File outFile = new File(output, node.getPath());
 
         // find contents of file, get bytes, and extract
-        if (filter.fileFilter(node)) {
-          extractFileNode(node, outFile);
-        }
+        extractFileNode(node, outFile);
+
       } else {
         // something went wrong, explode
         throw new IOException("not a PDIR or a FILE type");
