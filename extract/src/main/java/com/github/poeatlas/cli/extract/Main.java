@@ -7,6 +7,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -18,16 +19,21 @@ public class Main {
    * Processes GGPK files.
    */
   public static void main(final String[] args) throws IOException {
-    final Main main = new Main();
+    final StopWatch stopWatch = StopWatch.createStarted();
+    final Main app = new Main();
 
     try {
-      System.exit(main.processGgpk(args));
+      app.processGgpk(args);
+      stopWatch.stop();
+      log.info("Elapsed Time: {}", stopWatch.toString());
     } catch (Exception ex) {
       log.error("Failed to complete extraction of GGPK file.", ex);
+      log.info("Elapsed Time: {}", stopWatch.toString());
+      System.exit(1);
     }
   }
 
-  private int processGgpk(final String[] args) throws IOException {
+  private void processGgpk(final String[] args) throws IOException {
     final OptionParser parser = new OptionParser("vv");
 
     final OptionSpec<File> input = parser.accepts("input", "The GGPK inputFile.")
@@ -54,7 +60,7 @@ public class Main {
 
     if (!opt.has(input) || !opt.has(output)) {
       parser.printHelpOn(System.out);
-      return 1;
+      return;
     }
 
     final File inputFile = opt.valueOf(input);
@@ -65,7 +71,5 @@ public class Main {
 
     final GgpkReader ggpkReader = new GgpkReader(inputFile);
     ggpkReader.writeTo(outputFile);
-
-    return 0;
   }
 }

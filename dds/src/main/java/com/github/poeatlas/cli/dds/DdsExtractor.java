@@ -2,8 +2,8 @@ package com.github.poeatlas.cli.dds;
 
 import lombok.AllArgsConstructor;
 import lombok.Cleanup;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,12 +22,12 @@ import javax.imageio.stream.ImageInputStream;
  * Created by NothingSoup on 7/9/17.
  */
 @AllArgsConstructor
+@Slf4j
+@Data
 public class DdsExtractor {
   private static final String DDS = "dds";
   private static final String PNG = "png";
 
-  @Setter
-  @Getter
   private int mipmap;
 
   /**
@@ -36,10 +36,11 @@ public class DdsExtractor {
    * @throws IOException if file is invalid
    */
   public void extract(final File file) throws IOException {
+    log.info("{} will be extracted as a PNG image.", file.getPath(), getMipmap());
+
     @Cleanup final InputStream is = FileUtils.openInputStream(file);
 
     final byte[] decSizeBytes = IOUtils.readFully(is, 4);
-    // is.read(decSizeBytes);
 
     // converts 4 big endian ordered bytes to a little endian int
     // have to & 0xFF to eliminate the conversion from byte to int
@@ -48,11 +49,14 @@ public class DdsExtractor {
                      | ((decSizeBytes[1] & 0xFF) << 8)
                      | (decSizeBytes[0] & 0xFF);
 
-    final ImageReader imageReader = ImageIO.getImageReadersBySuffix(DDS).next();
+    if (log.isDebugEnabled()) {
+      log.debug("Brotli decoded size: {}", size);
+    }
 
     // converts brotli encoded file into ByteArrayInputStream
     @Cleanup final BrotliInputStream bis = new BrotliInputStream(is);
-    final ByteArrayInputStream bais = new ByteArrayInputStream(IOUtils.readFully(bis, size));
+    final byte[] decodedBytes = IOUtils.readFully(bis, size);
+    final ByteArrayInputStream bais = new ByteArrayInputStream(decodedBytes);
     @Cleanup final ImageInputStream iis = ImageIO.createImageInputStream(bais);
 
     // change extension of file from dds to png if found
@@ -63,11 +67,15 @@ public class DdsExtractor {
       outputPath = StringUtils.join(outputPath, ".png");
     }
 
-    final File output = new File(outputPath);
+    final ImageReader imageReader = ImageIO.getImageReadersBySuffix(DDS).next();
+
     imageReader.setInput(iis);
 
     final BufferedImage image = imageReader.read(getMipmap());
+    final File output = new File(outputPath);
+
     ImageIO.write(image, PNG, output);
+    log.info("{} ({}x{}) created", output.getPath(), image.getWidth(), image.getHeight());
   }
 
 }

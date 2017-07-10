@@ -38,7 +38,7 @@ public class FileNode extends DataNode {
   static class FileNodeBuilder {
     private FileChannel channel;
     private long offset;
-    private NodeHeader nodeHeader = new NodeHeader();
+    private Meta meta;
 
     public FileNodeBuilder withChannel(final FileChannel channel) {
       this.channel = channel;
@@ -50,13 +50,14 @@ public class FileNode extends DataNode {
       return this;
     }
 
-    public FileNodeBuilder withNodeHeader(final NodeHeader nodeHeader) {
-      this.nodeHeader = nodeHeader;
+    public FileNodeBuilder withNodeHeader(final Meta meta) {
+      this.meta = meta;
       return this;
     }
 
     /**
      * builds file node.
+     *
      * @return FileNode containing file's size/offset for extraction
      */
     @SneakyThrows
@@ -97,16 +98,15 @@ public class FileNode extends DataNode {
         name = name.substring(0, nameTermination);
       }
 
-      final long fileByteLength = 4 + 32 + nameLength * 2;
+      final long fileByteLength = Meta.NODE_HEADER_BYTE_SIZE + 4 + 32 + nameLength * 2;
+
       final FileNode fileNode = new FileNode();
       // fileNode.setOffset(offset);
       fileNode.setName(name);
       fileNode.setPath("");
       fileNode.setDigest(digest);
-      fileNode.setSize((long)nodeHeader.getLength()
-                       - (nodeHeader.NODE_HEADER_BYTE_SIZE
-                          + fileByteLength ));
-      fileNode.setContentOffset(nodeHeader.getOffset() + fileByteLength );
+      fileNode.setSize((long) meta.getLength() - fileByteLength); // to ignore the meta bytes too
+      fileNode.setContentOffset(meta.getOffset() + fileByteLength);
       return fileNode;
     }
   }

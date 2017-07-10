@@ -16,8 +16,9 @@ import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
+import java.util.Queue;
 
 /**
  * Created by NothingSoup on 6/22/17.
@@ -30,7 +31,7 @@ public class GgpkReader {
   private final File inputFile;
   private FileChannel fileChannel;
 
-  private final Deque<DataNode> dequeue = new ArrayDeque<>(50);
+  private final Queue<DataNode> queue = new ArrayDeque<>(50);
 
 
   /**
@@ -57,10 +58,11 @@ public class GgpkReader {
 
     fileChannel = FileChannel.open(inputFile.toPath());
 
-    final NodeHeader nodeHeader = new NodeHeader();
-    nodeHeader.fill(fileChannel);
+    final Meta meta = Meta.builder()
+        .withChannel(fileChannel)
+        .build();
 
-    if (nodeHeader.getType() != NodeTypes.GGPK) {
+    if (meta.getType() != NodeTypes.GGPK) {
       throw new IOException("invalid GGPK type");
     }
   }
@@ -74,29 +76,32 @@ public class GgpkReader {
   public void writeTo(final File output) throws IOException {
     @Cleanup final FileChannel fileChannel = FileChannel.open(inputFile.toPath());
     final List<Long> partitionOffsets = getPartitionOffsets(fileChannel);
-    final NodeHeader ggpkPartition = new NodeHeader();
+    final Meta.MetaBuilder partitionMetaBuilder = Meta.builder().withChannel(fileChannel);
+    Meta partitionMeta = null;
 
     log.trace(partitionOffsets.toString());
 
     // iterate through nodes to find children and offsets
     for (final long offset : partitionOffsets) {
-      ggpkPartition.fill(fileChannel, offset);
+      partitionMeta = partitionMetaBuilder.withOffset(offset).build();
 
-      log.debug(ggpkPartition.toString());
+      log.debug(partitionMeta.toString());
 
-      if (ggpkPartition.getType() == NodeTypes.PDIR) {
+      if (partitionMeta.getType() == NodeTypes.PDIR) {
         log.info("Found the Root GGPK Partition.");
         break;
       }
     }
 
-    if (ggpkPartition.getType() != NodeTypes.PDIR) {
+    Objects.requireNonNull(partitionMeta, "no partition meta could be found.");
+
+    if (partitionMeta.getType() != NodeTypes.PDIR) {
       throw new IOException("no PDIR found");
     }
 
     final DirectoryNode rootNode = DirectoryNode.builder()
         .withChannel(fileChannel)
-        .withOffset(ggpkPartition.getOffset())
+        .withOffset(partitionMeta.getOffset())
         .build();
 
     log.debug(rootNode.toString());
@@ -107,7 +112,7 @@ public class GgpkReader {
       throw new IOException("Name of Root Directory is not blank: " + rootName);
     }
 
-    dequeue.addLast(rootNode);
+    queue.add(rootNode);
 
     processQueue(output);
   }
@@ -118,8 +123,8 @@ public class GgpkReader {
 
     final NodeFilter filter = new NodeFilter();
 
-    while (!dequeue.isEmpty()) {
-      final DataNode dataNode = dequeue.pollLast();
+    while (!queue.isEmpty()) {
+      final DataNode dataNode = queue.poll();
 
       final NodeTypes type = dataNode.getType();
       if (log.isDebugEnabled()) {
@@ -133,15 +138,15 @@ public class GgpkReader {
 
         if (filter.directoryFilter(node)
             && ((!outFile.exists() || outFile.exists() && !outFile.isDirectory())
-            && !outFile.mkdirs())) {
+                && !outFile.mkdirs())) {
           throw new IOException("Could not create directory: " + path);
         }
 
-        // find children nodes and add to dequeue
+        // find children nodes and add to queue
         for (final long offset : node.getChildOffsets()) {
           final DataNode childNode = processDirectoryNode(offset);
           childNode.setPath(path + "/" + childNode.getName());
-          dequeue.addLast(childNode);
+          queue.add(childNode);
         }
       } else if (type == NodeTypes.FILE) {
         final FileNode node = dataNode.asFileNode();
@@ -170,30 +175,28 @@ public class GgpkReader {
 
   @SneakyThrows
   private DataNode processDirectoryNode(final long offset) {
-    final NodeHeader nodeHeader = new NodeHeader();
-
-    fileChannel.position(offset);
-
-    // fill node header information + calculate its offset
-    nodeHeader.fill(fileChannel, offset);
+    final Meta meta = Meta.builder()
+        .withChannel(fileChannel)
+        .withOffset(offset)
+        .build();
 
     if (log.isDebugEnabled()) {
-      log.debug(nodeHeader.toString());
+      log.debug(meta.toString());
     }
 
-    final NodeTypes nodeType = nodeHeader.getType();
+    final NodeTypes nodeType = meta.getType();
 
     switch (nodeType) {
       case PDIR:
         return DirectoryNode.builder()
-            .withOffset(nodeHeader.getOffset())
+            .withOffset(meta.getOffset())
             .withChannel(fileChannel)
             .build();
       case FILE:
         return FileNode.builder()
-            .withOffset(nodeHeader.getOffset())
+            .withOffset(meta.getOffset())
             .withChannel(fileChannel)
-            .withNodeHeader(nodeHeader)
+            .withNodeHeader(meta)
             .build();
       default:
         throw new IOException("Invalid node type: " + nodeType);

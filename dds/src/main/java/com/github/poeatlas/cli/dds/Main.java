@@ -4,9 +4,11 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,11 +22,19 @@ public class Main {
    * @throws IOException invalid argument
    */
   public static void main(final String[] args) throws IOException {
+    final StopWatch stopWatch = StopWatch.createStarted();
     final Main app = new Main();
+
+    if (log.isDebugEnabled()) {
+      log.debug("args: {}", Arrays.asList(args));
+    }
+
     try {
       app.run(args);
+      log.info("Elapsed Time: {}", stopWatch.toString());
     } catch (Exception ex) {
-      log.error("Unable to extract files.");
+      log.error("Unable to extract files.", ex);
+      log.info("Elapsed Time: {}", stopWatch.toString());
       System.exit(1);
     }
   }
@@ -37,27 +47,25 @@ public class Main {
   public void run(final String[] args) throws IOException {
     final OptionParser parser = new OptionParser();
 
-    final OptionSpec<Integer> mipmap = parser.accepts("mipmap", "Mipmap number for dds")
+    final OptionSpec<Integer> mipmapSpec = parser.accepts("mipmap", "Mipmap number for dds")
         .withRequiredArg()
         .ofType(Integer.class)
         .defaultsTo(0);
 
     final OptionSpec<File> files = parser.nonOptions().ofType(File.class);
-
     final OptionSet opt = parser.parse(args);
+    final int mipmap = opt.valueOf(mipmapSpec);
 
     // create + set mipmap for DdsExtractor
-    final DdsExtractor extractor = new DdsExtractor(opt.valueOf(mipmap));
+    final DdsExtractor extractor = new DdsExtractor(mipmap);
+
+    log.info("DDS Extractor will extract all files using mipmap {}.", mipmap);
 
     // loop through file list and extract to png
     final List<File> fileList = opt.valuesOf(files);
     for (final File file : fileList) {
       extractor.extract(file);
     }
-
-    // log.info("All args: {}", Arrays.asList(args));
-    // log.info("{}", opt.valuesOf(files));
-
   }
 
 }
