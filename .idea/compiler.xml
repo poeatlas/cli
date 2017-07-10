@@ -7,6 +7,8 @@
     <bytecodeTargetLevel target="1.8">
       <module name="cli_main" target="1.8" />
       <module name="cli_test" target="1.8" />
+      <module name="dat_main" target="1.8" />
+      <module name="dat_test" target="1.8" />
       <module name="dds_main" target="1.8" />
       <module name="dds_test" target="1.8" />
       <module name="extract_main" target="1.8" />

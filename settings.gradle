@@ -1,1 +1,2 @@
-include 'extract', 'dds'
+include 'extract', 'dds', 'dat'
+
