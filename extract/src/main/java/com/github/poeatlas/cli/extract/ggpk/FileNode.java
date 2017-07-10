@@ -98,15 +98,17 @@ public class FileNode extends DataNode {
         name = name.substring(0, nameTermination);
       }
 
-      final long fileByteLength = Meta.NODE_HEADER_BYTE_SIZE + 4 + 32 + nameLength * 2;
+      final long fileByteLength = 4 + 32 + nameLength * 2;
+      final long fileSize = Meta.NODE_HEADER_BYTE_SIZE + fileByteLength;
+      final long contentOffset = meta.getOffset() + fileByteLength;
 
       final FileNode fileNode = new FileNode();
       // fileNode.setOffset(offset);
       fileNode.setName(name);
       fileNode.setPath("");
       fileNode.setDigest(digest);
-      fileNode.setSize((long) meta.getLength() - fileByteLength); // to ignore the meta bytes too
-      fileNode.setContentOffset(meta.getOffset() + fileByteLength);
+      fileNode.setSize((long) meta.getLength() - fileSize); // to ignore the meta bytes too
+      fileNode.setContentOffset(contentOffset);
       return fileNode;
     }
   }
