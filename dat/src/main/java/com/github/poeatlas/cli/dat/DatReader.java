@@ -1,12 +1,14 @@
 package com.github.poeatlas.cli.dat;
 
 import lombok.Data;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
@@ -15,6 +17,7 @@ import java.nio.channels.FileChannel.MapMode;
  */
 @Slf4j
 @Data
+@ToString(exclude = "buf")
 public class DatReader {
   private static final long MAGIC_NUMBER = new BigInteger("BBBBBBBBBBBBBBBB", 16)
       .longValue();
@@ -22,8 +25,17 @@ public class DatReader {
   // ????
   private static final int TABLE_OFFSET = 4;
 
+  private int magicOffset;
+
+  private int tableLength;
+
+  private int rows;
+
+  private int rowLength;
 
   private final File file;
+
+  private ByteBuffer buf;
 
   public DatReader(final File file) throws IOException {
     this.file = file;
@@ -37,7 +49,9 @@ public class DatReader {
     final ByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, 0, fileLength);
     final int iterCount = fileLength - 7;
 
-    long magicOffset = -1;
+    buf.order(ByteOrder.LITTLE_ENDIAN);
+
+    int magicOffset = -1;
     for (int i = 0; i < iterCount; i++) {
       long data = buf.getLong(i);
       if (data == MAGIC_NUMBER) {
@@ -51,26 +65,45 @@ public class DatReader {
       throw new IOException(file.getPath() + " is not a GGG .dat file");
     }
 
+    setMagicOffset(magicOffset);
+
+    // get first 4 bytes of file
+    final int rows = buf.getInt();
+    final int tableLength = magicOffset - TABLE_OFFSET;
+
+    log.debug("rows = {}, tableLength = {}", rows, tableLength);
+
+    if (rows < 1 || tableLength < 1) {
+      throw new IOException("Zero or negative table row/length");
+    }
+
+    final int rowLength = (int) Math.floor((double) tableLength / rows);
+
+    setTableLength(tableLength);
+    setRows(rows);
+    setRowLength(rowLength);
+    setBuf(buf);
+
+    log.info(toString());
+  }
+
+  public void test() {
+    // final int offset = 4 + 2 * getRowLength();
+    // //struct.unpack('<' + casts[0][2], self._file_raw[offset:offset+casts[0][1]])[0]
+    // // [offset:offset+self.table_record_length]
+    // final byte[] bytes = new byte[getRowLength()];
+    // log.info("offset: {}", offset);
+    // buf.position(offset);
+    // buf.get(bytes);
     //
-    // // get table rows
-    // buf = ByteBuffer.allocate(4);
-    // buf.order(LITTLE_ENDIAN);
-    // fileChannel.read(buf);
-    // buf.flip();
-    //
-    // final int tableRows = buf.getInt();
-    // final long tableLength = dataOffset - TABLE_OFFSET;
-    //
-    // // do no initialize
-    // double tableRecordLength = 0;
-    // if (tableRows > 0) {
-    //   tableRecordLength = Math.floor((double) tableLength / tableRows);
-    // } else if (tableRows == 0 && tableLength == 0) {
-    //   tableRecordLength = 0;
+    // for (int i = 0; i < bytes.length; i++) {
+    //   log.info("{}, {}", bytes[i], Character.toString((char)bytes[i]));
     // }
-    //
-    // final long fileLength = file.length();
-    // log.info("{}", tableRecordLength);
-    // log.info("lengt: {} position: {}", fileLength, fileChannel.position());
+    buf.position(0);
+    byte[] chars = new byte[30];
+    for (int i = 0; i < 1000000000; i++) {
+      buf.get(chars);
+      log.info("{}", new String(chars));
+    }
   }
 }

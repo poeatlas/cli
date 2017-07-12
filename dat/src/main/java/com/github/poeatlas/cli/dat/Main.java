@@ -44,5 +44,6 @@ public class Main {
    */
   private void run(final File file) throws IOException {
     final DatReader reader = new DatReader(file);
+    reader.test();
   }
 }
