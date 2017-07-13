@@ -37,6 +37,7 @@ public class DatReader {
 
   private ByteBuffer buf;
 
+  /** DatReader. */
   public DatReader(final File file) throws IOException {
     this.file = file;
 
@@ -53,7 +54,7 @@ public class DatReader {
 
     int magicOffset = -1;
     for (int i = 0; i < iterCount; i++) {
-      long data = buf.getLong(i);
+      final long data = buf.getLong(i);
       if (data == MAGIC_NUMBER) {
         magicOffset = i;
         break;
@@ -87,6 +88,7 @@ public class DatReader {
     log.info(toString());
   }
 
+  /** WIP. */
   public void test() {
     // final int offset = 4 + 2 * getRowLength();
     // //struct.unpack('<' + casts[0][2], self._file_raw[offset:offset+casts[0][1]])[0]
@@ -99,11 +101,11 @@ public class DatReader {
     // for (int i = 0; i < bytes.length; i++) {
     //   log.info("{}, {}", bytes[i], Character.toString((char)bytes[i]));
     // }
-    buf.position(0);
-    byte[] chars = new byte[30];
-    for (int i = 0; i < 1000000000; i++) {
-      buf.get(chars);
-      log.info("{}", new String(chars));
-    }
+    // buf.position(0);
+    // byte[] chars = new byte[30];
+    // for (int i = 0; i < 1000000000; i++) {
+    //   buf.get(chars);
+    //   log.info("{}", new String(chars));
+    // }
   }
 }

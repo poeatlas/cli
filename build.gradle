@@ -5,7 +5,7 @@ buildscript {
 
   dependencies {
     classpath 'net.researchgate:gradle-release:2.4.0'
-    classpath 'com.netflix.nebula:gradle-lint-plugin:7.8.0'
+//    classpath 'com.netflix.nebula:gradle-lint-plugin:7.8.0'
   }
 }
 
@@ -17,7 +17,7 @@ allprojects {
   apply plugin: 'pmd'
   apply plugin: 'findbugs'
   apply plugin: 'net.researchgate.release'
-  apply plugin: 'nebula.lint'
+//  apply plugin: 'nebula.lint'
 
   repositories {
     mavenCentral()
@@ -28,13 +28,13 @@ allprojects {
   targetCompatibility = 1.8
 
   dependencies {
-    gradleLint.ignore {
-      compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
+//    gradleLint.ignore {
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
 
-      // logging
-      compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-      compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
-    }
+    // logging
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.11'
+//    }
 
     compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
 
@@ -77,11 +77,11 @@ allprojects {
       reports.all { report ->
         def outputFile = report.destination
         if (outputFile.exists() && outputFile.text.contains("<error ")) {
-          throw new GradleException("There were checkstyle warnings! For more info check inputFile://${reports.html.destination}")
+          throw new GradleException("There were checkstyle warnings! For more info check file://${reports.html.destination}")
         }
       }
     }
   }
 
-  gradleLint.rules = ['all-dependency']
+//  gradleLint.rules = ['all-dependency']
 }
