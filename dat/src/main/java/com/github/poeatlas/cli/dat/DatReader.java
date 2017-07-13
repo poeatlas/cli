@@ -37,7 +37,9 @@ public class DatReader {
 
   private ByteBuffer buf;
 
-  /** DatReader. */
+  /**
+   * DatReader.
+   */
   public DatReader(final File file) throws IOException {
     this.file = file;
 
@@ -88,8 +90,20 @@ public class DatReader {
     log.info(toString());
   }
 
-  /** WIP. */
+  /**
+   * WIP.
+   */
   public void test() {
+    // AtlasNode node = new AtlasNode();
+    // for (Field field : node.getClass().getDeclaredFields()) {
+    //   // field.setAccessible(true);
+    //   if (!Modifier.isStatic(field.getModifiers())) {
+    //
+    //     log.info("{}", field.getType());
+    //
+    //   }
+    // }
+
     // final int offset = 4 + 2 * getRowLength();
     // //struct.unpack('<' + casts[0][2], self._file_raw[offset:offset+casts[0][1]])[0]
     // // [offset:offset+self.table_record_length]

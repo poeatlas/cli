@@ -21,8 +21,13 @@ public class TestComponent {
   @Autowired
   private AtlasNodeRepository atlasNodeRepository;
 
+  /**
+   * test method.
+   */
   public void test() {
     final List<AtlasNode> list = atlasNodeRepository.findAll();
+
+
     log.info("{}", list.toString());
   }
 }
