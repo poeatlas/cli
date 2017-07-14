@@ -21,13 +21,16 @@ public class TestComponent {
   @Autowired
   private AtlasNodeRepository atlasNodeRepository;
 
+  // @Autowired
+  // private ItemVisualIdentityRepository itemVisualIdentityRepository;
   /**
    * test method.
    */
   public void test() {
     final List<AtlasNode> list = atlasNodeRepository.findAll();
-
+    // final List<ItemVisualIdentity> iviList = itemVisualIdentityRepository.findAll();
 
     log.info("{}", list.toString());
+    // log.info("item visual identity: {}", iviList.toString());
   }
 }

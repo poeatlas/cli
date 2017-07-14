@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /**
  * Created by blei on 7/12/17.
  */
-public interface AtlasNodeRepository extends JpaRepository<AtlasNode, Long> {
+public interface AtlasNodeRepository extends JpaRepository<AtlasNode, Integer> {
 }
