@@ -1,41 +1,42 @@
 apply plugin: 'org.springframework.boot'
 
 buildscript {
-    ext {
-        startClass = 'com.github.poeatlas.cli.dat.Main'
-    }
+  ext {
+    startClass = 'com.github.poeatlas.cli.dat.Main'
+  }
 
-    repositories {
-        mavenCentral()
-    }
+  repositories {
+    mavenCentral()
+  }
 
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.7.RELEASE")
-    }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.7.RELEASE")
+  }
 }
 
 jar {
-    baseName = 'dat-reader'
-    version = "${version}"
+  baseName = 'dat-reader'
+  version = "${version}"
 
-    manifest {
-        attributes "Main-Class": "${startClass}"
-    }
+  manifest {
+    attributes "Main-Class": "${startClass}"
+  }
 
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
 }
 
 dependencies {
-    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+  compile group: 'commons-io', name: 'commons-io', version: '2.5'
 //    compile group: 'org.hibernate', name: 'hibernate-annotations', version: '3.5.6-Final'
-    compile group: 'org.hibernate.common', name: 'hibernate-commons-annotations', version: '5.0.1.Final'
-    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.10.Final'
-    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.42'
+  compile group: 'org.hibernate.common', name: 'hibernate-commons-annotations', version: '5.0.1.Final'
+  compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.10.Final'
+  compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.42'
+  compile group: 'org.reflections', name: 'reflections', version: '0.9.11'
 
 //    compile group: 'org.springframework.boot', name: 'spring-boot', version: '1.4.7.RELEASE'
 
-    compile('org.springframework.boot:spring-boot-starter-data-jpa')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+  compile('org.springframework.boot:spring-boot-starter-data-jpa')
+  testCompile('org.springframework.boot:spring-boot-starter-test')
 }
