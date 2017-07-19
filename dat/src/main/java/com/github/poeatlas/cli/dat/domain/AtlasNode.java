@@ -17,6 +17,7 @@ import javax.persistence.Table;
 
 /**
  * Created by blei on 7/12/17.
+ * dependent on ItemVisualIdentity dat file
  */
 @Entity
 @Slf4j

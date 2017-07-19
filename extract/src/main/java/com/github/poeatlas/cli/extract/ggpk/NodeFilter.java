@@ -64,7 +64,7 @@ public class NodeFilter {
            || "/data/atlasnode.dat".equals(filePath)
            || "/data/worldareas.dat".equals(filePath)
            || "/data/baseitemtypes.dat".equals(filePath)
-           || "/data/itemvisualeffect.dat".equals(filePath)
+           || "/data/itemvisualidentity.dat".equals(filePath)
            || ATLAS_MAP_MATCHER.reset(filePath).matches();
   }
 }

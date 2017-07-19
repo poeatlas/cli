@@ -3,6 +3,7 @@ package com.github.poeatlas.cli.dat.decoder;
 import com.github.poeatlas.cli.dat.DatMeta;
 import com.github.poeatlas.cli.dat.Main;
 import com.github.poeatlas.cli.dat.exception.DatDecoderException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.reflections.Reflections;
 
 import java.lang.reflect.ParameterizedType;
@@ -46,6 +47,6 @@ public abstract class Decoder<T> {
     return (Decoder<U>) decoders.get(clazz);
   }
 
-  public abstract T decode(final ByteBuffer buf, final DatMeta meta);
+  public abstract Pair<T,Integer> decode(final ByteBuffer buf, final DatMeta meta, final int beginOffset);
 
 }

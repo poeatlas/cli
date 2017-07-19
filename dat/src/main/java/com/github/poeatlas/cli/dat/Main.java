@@ -2,10 +2,12 @@ package com.github.poeatlas.cli.dat;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -15,7 +17,10 @@ import java.util.Arrays;
 @SpringBootApplication
 @Slf4j
 @SuppressWarnings("PMD.UseUtilityClass")
-public class Main {
+public class Main implements CommandLineRunner {
+
+  @Autowired
+  private DatReader datReader;
   /**
    * reads dat files.
    *
@@ -30,9 +35,8 @@ public class Main {
     }
 
     try {
-      final ApplicationContext context = SpringApplication.run(Main.class);
-      final TestComponent test = context.getBean(TestComponent.class);
-      test.test();
+      final SpringApplication app = new SpringApplication(Main.class);
+      app.run(args);
       log.info("Elapsed Time: {}", stopWatch.toString());
     } catch (Exception ex) {
       log.error(ex.getMessage(), ex);
@@ -41,4 +45,8 @@ public class Main {
     }
   }
 
+  @Override
+  public void run(String... args) throws Exception {
+    datReader.parseDat(new File(args[0]));
+  }
 }

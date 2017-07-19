@@ -84,7 +84,7 @@ public class FileNode extends DataNode {
       // get directory node name
       final char[] nameBuf = new char[nameLength];
 
-      buf = ByteBuffer.allocate(nameLength << 1);
+      buf = ByteBuffer.allocate(nameLength * 2);
       buf.order(LITTLE_ENDIAN);
 
       channel.read(buf);

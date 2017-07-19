@@ -14,6 +14,7 @@ import javax.persistence.Transient;
 
 /**
  * Created by NothingSoup on 7/13/17.
+ * no FK dat dependencies
  */
 @SuppressWarnings("PMD.TooManyFields")
 @Entity
