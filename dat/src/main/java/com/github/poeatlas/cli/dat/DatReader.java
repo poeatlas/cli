@@ -120,19 +120,25 @@ public class DatReader {
     }
     WorldAreas worldAreas = new WorldAreas();
     PropertyAccessor worldAreasAccessor = PropertyAccessorFactory.forBeanPropertyAccess(worldAreas);
+    for (int currRow = 0; currRow < datMeta.getTableRows(); currRow++) {
 
-    for (Field field : worldAreasFieldList) {
-      if (field.getName() == "id") {
-        continue;
-      }
-      // log.info("curr field: {}, type: {}", field.getName(),field.getType());
-      Decoder decoder = Decoder.getDecoder(field.getType());
+      final int initialOffset = 4 + currRow * datMeta.getTableRowLength();
+      final int stringOffset = buf.getInt(initialOffset);
       Pair<Object, Integer> decodedValue;
-      for (int currRow = 0; currRow < datMeta.getTableRows(); currRow++) {
-        final int initialOffset = 4 + currRow * datMeta.getTableRowLength();
+      int savedOffset = 0;
 
-        decodedValue = decoder.decode(buf, datMeta, initialOffset);
+      for (Field field : worldAreasFieldList) {
+        if (field.getName() == "id") {
+          continue;
+        }
+        // 583334
+        // log.info("decoding field: {}", field.getName());
+        Decoder decoder = Decoder.getDecoder(field.getType());
+        decodedValue = decoder.decode(buf, datMeta, stringOffset + savedOffset);
+
         worldAreasAccessor.setPropertyValue(field.getName(), decodedValue.getLeft());
+
+        savedOffset = decodedValue.getRight();
         log.info(worldAreas.toString());
       }
     }

@@ -29,8 +29,8 @@ public class WorldAreas {
   @Column(nullable = false)
   private String areaKey;
 
-  // @Column(nullable = false)
-  // private String name;
+  @Column(nullable = false)
+  private String name;
 
   // @Column(nullable = false)
   // private int act;

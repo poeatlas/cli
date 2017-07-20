@@ -18,15 +18,20 @@ import java.nio.ByteBuffer;
 public class StringDecoder extends Decoder<String> {
 
   @Override
-  public Pair<String, Integer> decode(final ByteBuffer buf, final DatMeta datMeta, final int initialOffset) {
-    final int stringOffset = buf.getInt(initialOffset);
+  public Pair<String, Integer> decode(final ByteBuffer buf, final DatMeta datMeta, final int stringOffset) {
+
     final int beginOffset = datMeta.getMagicOffset() + stringOffset;
     final int bytesToRead = beginOffset + datMeta.getTableRowLength();
+    // log.info("bytes to read: {}", bytesToRead);
+    // log.info("begin offset: {}", beginOffset);
+    // value end offset when we find x00 x00 x00 x00
+    // for (int i = 0; i <= datMeta.getTableRowLength(); i++) {
+    //   log.info("value: {}, offset: {}", buf.get(i + beginOffset), i + beginOffset);
+    // }
 
     // value end offset when we find x00 x00 x00 x00
     int endOffset = 0;
     for (int i = beginOffset; i < bytesToRead; i += 2) {
-      buf.position(i);
       if (buf.getInt(i) == 0) {
         endOffset = i;
         break;
@@ -34,6 +39,7 @@ public class StringDecoder extends Decoder<String> {
     }
 
     String value;
+    final int valueLength = endOffset - beginOffset;
     // string is empty
     if (beginOffset == endOffset) {
       value = "";
@@ -45,8 +51,7 @@ public class StringDecoder extends Decoder<String> {
       // }
 
       // convert value into string + remove terminating char
-      final int nameLength = endOffset - beginOffset + 1;
-      final char[] nameBuf = new char[nameLength];
+      final char[] nameBuf = new char[valueLength/2];
       buf.order(LITTLE_ENDIAN);
       buf.position(beginOffset);
       buf.asCharBuffer().get(nameBuf);
@@ -57,7 +62,7 @@ public class StringDecoder extends Decoder<String> {
         value = value.substring(0, nameTermination);
       }
     }
-    // log.info("value: {}", value);
-    return Pair.of(value, endOffset);
+
+    return Pair.of(value, valueLength + 4);
   }
 }
