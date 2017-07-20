@@ -1,5 +1,7 @@
 package com.github.poeatlas.cli.dat;
 
+import com.github.poeatlas.cli.dat.repository.ItemVisualIdentityRepository;
+import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by NothingSoup on 7/9/17.
@@ -19,8 +23,16 @@ import java.util.Arrays;
 @SuppressWarnings("PMD.UseUtilityClass")
 public class Main implements CommandLineRunner {
 
+  private List<String> stringList;
+
+  private List<Integer> integerList;
+
   @Autowired
-  private DatReader datReader;
+  private WorldAreasRepository worldAreasRepo;
+
+  @Autowired
+  private ItemVisualIdentityRepository itemVisualIdentityRepo;
+
   /**
    * reads dat files.
    *
@@ -47,6 +59,25 @@ public class Main implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    datReader.parseDat(new File(args[0]));
+    final File directory = new File(args[0]);
+    if (!directory.isDirectory()) {
+      throw new IOException(directory.getPath() + "is not a directory");
+    }
+
+    Field stringListField = Main.class.getDeclaredField("stringList");
+    Field intListField = Main.class.getDeclaredField("integerList");
+
+    log.info("str list: {}", stringListField.getType());
+    log.info("int list: {}", intListField.getType());
+
+    log.info(String.valueOf(stringListField.getType().equals(intListField.getType())));
+    // DatParser worldAreasParser = new DatParser(directory, WorldAreas.class);
+    // DatParser itemVisualIdentityParser = new DatParser(directory, ItemVisualIdentity.class);
+    //
+    // List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
+    // List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
+    //
+    // worldAreasRepo.save(worldAreasRecList);
+    // itemVisualIdentityRepo.save(itemVisualIdentityList);
   }
 }
