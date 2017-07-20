@@ -3,7 +3,6 @@ package com.github.poeatlas.cli.dat.decoder;
 import com.github.poeatlas.cli.dat.DatMeta;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.nio.ByteBuffer;
 
@@ -12,8 +11,15 @@ import java.nio.ByteBuffer;
  */
 @NoArgsConstructor(access = AccessLevel.MODULE)
 public class IntDecoder extends Decoder<Integer> {
+  private static final int COLUMN_LENGTH = 4;
+
   @Override
-  public Pair<Integer, Integer> decode(final ByteBuffer buf, final DatMeta meta, final int beginOffset) {
+  public Integer decode(final ByteBuffer buf, final DatMeta meta) {
     return null;
+  }
+
+  @Override
+  public int getColumnLength() {
+    return COLUMN_LENGTH;
   }
 }

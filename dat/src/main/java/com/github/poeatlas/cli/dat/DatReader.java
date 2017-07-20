@@ -1,8 +1,10 @@
 package com.github.poeatlas.cli.dat;
 
+import com.github.poeatlas.cli.dat.annotation.Spec;
 import com.github.poeatlas.cli.dat.decoder.Decoder;
 import com.github.poeatlas.cli.dat.domain.WorldAreas;
 import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
+import com.github.poeatlas.cli.dat.util.SpecUtils;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.ToString;
@@ -16,15 +18,14 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import javax.persistence.Transient;
+import java.util.Map;
 
 /**
  * Created by blei on 7/10/17.
@@ -34,15 +35,13 @@ import javax.persistence.Transient;
 @Data
 @ToString(exclude = "buf")
 public class DatReader {
-
   @Autowired
-  WorldAreasRepository worldAreasRepo;
+  private WorldAreasRepository worldAreasRepo;
 
   private static final long MAGIC_NUMBER = new BigInteger("BBBBBBBBBBBBBBBB", 16)
       .longValue();
 
-  // ????
-  private static final int TABLE_OFFSET = 4;
+  private static final int TABLE_START_OFFSET = 4;
 
   private DatMeta datMeta;
 
@@ -51,7 +50,6 @@ public class DatReader {
   private ByteBuffer buf;
 
   private void init() throws IOException {
-
     final File worldAreasDat = new File(directory, "WorldAreas.dat");
 
     final FileChannel fileChannel = FileChannel.open(worldAreasDat.toPath());
@@ -77,7 +75,7 @@ public class DatReader {
 
     // get first 4 bytes of directory
     final int rows = buf.getInt();
-    final int tableLength = magicOffset - TABLE_OFFSET;
+    final int tableLength = magicOffset - TABLE_START_OFFSET;
 
     log.debug("rows = {}, tableLength = {}", rows, tableLength);
 
@@ -110,81 +108,40 @@ public class DatReader {
     }
     init();
 
-    List<Field> worldAreasFieldList = new ArrayList<>();
-    for (Field field : WorldAreas.class.getDeclaredFields()) {
-      // add non static and non-transient fields into list for parsing
-      if (!Modifier.isStatic(field.getModifiers())
-          && java.util.Objects.isNull(field.getAnnotation(Transient.class))) {
-        worldAreasFieldList.add(field);
+    final List<Pair<Field, Spec>> worldAreasList = SpecUtils.getSpec(WorldAreas.class);
+    final String idName = SpecUtils.getId(WorldAreas.class).getName();
+    final int tableEndOffset = datMeta.getMagicOffset();
+    final int tableRowLength = datMeta.getTableRowLength();
+
+    for (int position = 4, id = 0; position < tableEndOffset; position += tableRowLength, id++) {
+      final Map<String, Object> props = new HashMap<>();
+      int nextPosition = position;
+
+      // set id value
+      props.put(idName, id);
+      buf.position(position);
+
+      // final int initialOffset = 4 + position * datMeta.getTableRowLength();
+
+      for (Pair<Field, Spec> pair: worldAreasList) {
+        final Field field = pair.getKey();
+        final Spec spec = pair.getValue();
+        final Decoder decoder = Decoder.getDecoder(spec.value());
+        final Object decodedValue = decoder.decode(buf, datMeta);
+
+        props.put(field.getName(), decodedValue);
+
+        nextPosition += decoder.getColumnLength();
+        buf.position(nextPosition);
       }
+
+      final WorldAreas worldAreas = new WorldAreas();
+      final PropertyAccessor worldAreasAccessor =
+          PropertyAccessorFactory.forBeanPropertyAccess(worldAreas);
+      worldAreasAccessor.setPropertyValues(props);
+
+      log.info(worldAreas.toString());
+      // worldAreasRepo.save(worldAreas);
     }
-    WorldAreas worldAreas = new WorldAreas();
-    PropertyAccessor worldAreasAccessor = PropertyAccessorFactory.forBeanPropertyAccess(worldAreas);
-    for (int currRow = 0; currRow < datMeta.getTableRows(); currRow++) {
-
-      final int initialOffset = 4 + currRow * datMeta.getTableRowLength();
-      final int stringOffset = buf.getInt(initialOffset);
-      Pair<Object, Integer> decodedValue;
-      int savedOffset = 0;
-
-      for (Field field : worldAreasFieldList) {
-        if (field.getName() == "id") {
-          continue;
-        }
-        // 583334
-        // log.info("decoding field: {}", field.getName());
-        Decoder decoder = Decoder.getDecoder(field.getType());
-        decodedValue = decoder.decode(buf, datMeta, stringOffset + savedOffset);
-
-        worldAreasAccessor.setPropertyValue(field.getName(), decodedValue.getLeft());
-
-        savedOffset = decodedValue.getRight();
-        log.info(worldAreas.toString());
-      }
-    }
-
-
-    // // get directory node name
-    // final char[] nameBuf = new char[nameLength];
-    //
-    // buf = ByteBuffer.allocate(nameLength * 2);
-    // buf.order(LITTLE_ENDIAN);
-    //
-    // channel.read(buf);
-    //
-    // buf.flip();
-    // buf.asCharBuffer().get(nameBuf);
-    // String name = new String(nameBuf);
-    //
-    // final int nameTermination = name.indexOf('\0');
-    // if (nameTermination != -1) {
-    //   name = name.substring(0, nameTermination);
-    // }
-
-    //
-    // log.info("num bytes = {}", newOffset - getMagicOffset());
-    // for (int i = getMagicOffset(); i < newOffset; i++) {
-    //   log.info("string char is: {}",buf.get(i + 1));
-    // }
-    // }
-    // }
-
-    // final int offset = 4 + 2 * getRowLength();
-    // //struct.unpack('<' + casts[0][2], self._file_raw[offset:offset+casts[0][1]])[0]
-    // // [offset:offset+self.table_record_length]
-    // final byte[] bytes = new byte[getRowLength()];
-    // log.info("offset: {}", offset);
-    // buf.position(offset);
-    // buf.get(bytes);
-    //
-    // for (int i = 0; i < bytes.length; i++) {
-    //   log.info("{}, {}", bytes[i], Character.toString((char)bytes[i]));
-    // }
-    // buf.position(0);
-    // byte[] chars = new byte[30];
-    // for (int i = 0; i < 1000000000; i++) {
-    //   buf.get(chars);
-    //   log.info("{}", new String(chars));
-    // }
   }
 }

@@ -6,7 +6,6 @@ import com.github.poeatlas.cli.dat.DatMeta;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.nio.ByteBuffer;
 
@@ -16,12 +15,14 @@ import java.nio.ByteBuffer;
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.MODULE)
 public class StringDecoder extends Decoder<String> {
+  private static final int COLUMN_LENGTH = 4;
 
   @Override
-  public Pair<String, Integer> decode(final ByteBuffer buf, final DatMeta datMeta, final int stringOffset) {
-
+  public String decode(final ByteBuffer buf, final DatMeta datMeta) {
+    final int stringOffset = buf.getInt();
     final int beginOffset = datMeta.getMagicOffset() + stringOffset;
     final int bytesToRead = beginOffset + datMeta.getTableRowLength();
+
     // log.info("bytes to read: {}", bytesToRead);
     // log.info("begin offset: {}", beginOffset);
     // value end offset when we find x00 x00 x00 x00
@@ -38,31 +39,38 @@ public class StringDecoder extends Decoder<String> {
       }
     }
 
-    String value;
     final int valueLength = endOffset - beginOffset;
-    // string is empty
+
+    // empty string; end it
     if (beginOffset == endOffset) {
-      value = "";
-    } else {
-      // check for string ending in x00 and another starting with x00
-
-      // if (buf.getInt(endOffset + 1) == 0) {
-      //   endOffset = endOffset + 1;
-      // }
-
-      // convert value into string + remove terminating char
-      final char[] nameBuf = new char[valueLength/2];
-      buf.order(LITTLE_ENDIAN);
-      buf.position(beginOffset);
-      buf.asCharBuffer().get(nameBuf);
-      value = new String(nameBuf);
-      final int nameTermination = value.indexOf('\0');
-
-      if (nameTermination != -1) {
-        value = value.substring(0, nameTermination);
-      }
+      return "";
     }
 
-    return Pair.of(value, valueLength + 4);
+    // check for string ending in x00 and another starting with x00
+
+    // if (buf.getInt(endOffset + 1) == 0) {
+    //   endOffset = endOffset + 1;
+    // }
+
+    // convert value into string + remove terminating char
+    final char[] nameBuf = new char[valueLength / 2];
+
+    buf.order(LITTLE_ENDIAN);
+    buf.position(beginOffset);
+    buf.asCharBuffer().get(nameBuf);
+
+    String value = new String(nameBuf);
+    final int nameTermination = value.indexOf('\0');
+
+    if (nameTermination != -1) {
+      value = value.substring(0, nameTermination);
+    }
+
+    return value;
+  }
+
+  @Override
+  public int getColumnLength() {
+    return COLUMN_LENGTH;
   }
 }
