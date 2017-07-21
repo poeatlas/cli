@@ -1,20 +1,22 @@
 package com.github.poeatlas.cli.dat.decoder;
 
 import com.github.poeatlas.cli.dat.DatMeta;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 /**
  * Created by blei on 7/18/17.
  */
-@NoArgsConstructor(access = AccessLevel.MODULE)
 public class IntDecoder extends Decoder<Integer> {
   private static final int COLUMN_LENGTH = 4;
 
+  IntDecoder(DatMeta meta, Field field) {
+    super(meta, field);
+  }
+
   @Override
-  public Integer decode(final ByteBuffer buf, final DatMeta meta) {
+  public Integer decode(ByteBuffer buf) {
     return null;
   }
 

@@ -1,7 +1,5 @@
 package com.github.poeatlas.cli.dat.domain;
 
-import com.github.poeatlas.cli.dat.annotation.Spec;
-import com.github.poeatlas.cli.dat.decoder.StringDecoder;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -22,15 +20,12 @@ import javax.persistence.Table;
 @ToString
 @Table(name = "item_visual_identity")
 public class ItemVisualIdentity {
-
   @Id
   private int id;
 
-  @Spec(StringDecoder.class)
   @Column(nullable = false)
   private String itemKey;
 
-  @Spec(StringDecoder.class)
   @Column(nullable = false)
   private String ddsFile;
 

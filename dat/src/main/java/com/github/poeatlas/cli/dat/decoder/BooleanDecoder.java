@@ -2,6 +2,7 @@ package com.github.poeatlas.cli.dat.decoder;
 
 import com.github.poeatlas.cli.dat.DatMeta;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 /**
@@ -10,8 +11,12 @@ import java.nio.ByteBuffer;
 public class BooleanDecoder extends Decoder<Boolean> {
   private final static int COLUMN_LENGTH = 4;
 
+  BooleanDecoder(DatMeta meta, Field field) {
+    super(meta, field);
+  }
+
   @Override
-  public Boolean decode(ByteBuffer buf, DatMeta meta) {
+  public Boolean decode(ByteBuffer buf) {
     return null;
   }
 

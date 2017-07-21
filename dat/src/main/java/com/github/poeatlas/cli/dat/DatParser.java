@@ -1,17 +1,16 @@
 package com.github.poeatlas.cli.dat;
 
-import com.github.poeatlas.cli.dat.annotation.Spec;
 import com.github.poeatlas.cli.dat.decoder.Decoder;
-import com.github.poeatlas.cli.dat.util.SpecUtils;
+import com.github.poeatlas.cli.dat.util.DatUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -49,7 +48,6 @@ public class DatParser<T> {
   }
 
   private void init() throws IOException {
-
     final FileChannel fileChannel = FileChannel.open(file.toPath());
     final int fileLength = (int) file.length();
     final ByteBuffer buf = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileLength);
@@ -94,16 +92,26 @@ public class DatParser<T> {
         .tableRows(rows)
         .build();
   }
+
   /**
    * WIP.
    */
-  public List<T> parse() throws IOException, IllegalAccessException, InstantiationException {
-
-    final List<Pair<Field, Spec>> specList = SpecUtils.getSpec(clazz);
-    final String idName = SpecUtils.getId(clazz).getName();
+  public List<T> parse()
+      throws IOException,
+      InvocationTargetException,
+      InstantiationException,
+      IllegalAccessException {
+    final List<Field> fields = DatUtils.getFields(clazz);
+    final String idName = DatUtils.getId(clazz).getName();
     final int tableEndOffset = datMeta.getMagicOffset();
     final int tableRowLength = datMeta.getTableRowLength();
     final List<T> valueList = new ArrayList<>();
+    final Map<Field, Decoder<?>> decoders = new HashMap<>();
+
+    // create all decoders
+    for (final Field field : fields) {
+      decoders.put(field, Decoder.getDecoder(field, datMeta));
+    }
 
     for (int position = 4, id = 0; position < tableEndOffset; position += tableRowLength, id++) {
       final Map<String, Object> props = new HashMap<>();
@@ -113,13 +121,9 @@ public class DatParser<T> {
       props.put(idName, id);
       buf.position(position);
 
-      // final int initialOffset = 4 + position * datMeta.getTableRowLength();
-
-      for (Pair<Field, Spec> pair: specList) {
-        final Field field = pair.getKey();
-        final Spec spec = pair.getValue();
-        final Decoder decoder = Decoder.getDecoder(spec.value());
-        final Object decodedValue = decoder.decode(buf, datMeta);
+      for (final Field field : fields) {
+        final Decoder decoder = decoders.get(field);
+        final Object decodedValue = decoder.decode(buf);
 
         props.put(field.getName(), decodedValue);
 
@@ -135,8 +139,8 @@ public class DatParser<T> {
       valueList.add(record);
 
       log.info(record.toString());
-      // worldAreasRepo.save(worldAreas);
     }
+
     return valueList;
   }
 }

@@ -1,7 +1,5 @@
 package com.github.poeatlas.cli.dat.domain;
 
-import com.github.poeatlas.cli.dat.annotation.Spec;
-import com.github.poeatlas.cli.dat.decoder.StringDecoder;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +21,11 @@ import javax.persistence.Table;
 @Table(name = "world_areas")
 public class WorldAreas {
   @Id
-  private Integer id;
+  private int id;
 
-  @Spec(StringDecoder.class)
   @Column(nullable = false)
   private String areaKey;
 
-  @Spec(StringDecoder.class)
   @Column(nullable = false)
   private String name;
 

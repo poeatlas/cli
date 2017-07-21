@@ -1,5 +1,7 @@
 package com.github.poeatlas.cli.dat;
 
+import com.github.poeatlas.cli.dat.domain.ItemVisualIdentity;
+import com.github.poeatlas.cli.dat.domain.WorldAreas;
 import com.github.poeatlas.cli.dat.repository.ItemVisualIdentityRepository;
 import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,11 +23,6 @@ import java.util.List;
 @Slf4j
 @SuppressWarnings("PMD.UseUtilityClass")
 public class Main implements CommandLineRunner {
-
-  private List<String> stringList;
-
-  private List<Integer> integerList;
-
   @Autowired
   private WorldAreasRepository worldAreasRepo;
 
@@ -64,18 +60,19 @@ public class Main implements CommandLineRunner {
       throw new IOException(directory.getPath() + "is not a directory");
     }
 
-    Field stringListField = Main.class.getDeclaredField("stringList");
-    Field intListField = Main.class.getDeclaredField("integerList");
-
-    log.info("str list: {}", stringListField.getType());
-    log.info("int list: {}", intListField.getType());
-
-    log.info(String.valueOf(stringListField.getType().equals(intListField.getType())));
-    // DatParser worldAreasParser = new DatParser(directory, WorldAreas.class);
-    // DatParser itemVisualIdentityParser = new DatParser(directory, ItemVisualIdentity.class);
+    // Field stringListField = Main.class.getDeclaredField("stringList");
+    // Field intListField = Main.class.getDeclaredField("integerList");
     //
-    // List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
-    // List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
+    // log.info("str list: {}", stringListField.getType());
+    // log.info("int list: {}", intListField.getType());
+    //
+    // log.info(String.valueOf(stringListField.getType().equals(intListField.getType())));
+
+    DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
+    DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory, ItemVisualIdentity.class);
+
+    List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
+    List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
     //
     // worldAreasRepo.save(worldAreasRecList);
     // itemVisualIdentityRepo.save(itemVisualIdentityList);

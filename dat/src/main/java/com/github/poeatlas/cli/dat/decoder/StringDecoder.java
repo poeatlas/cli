@@ -3,22 +3,25 @@ package com.github.poeatlas.cli.dat.decoder;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 import com.github.poeatlas.cli.dat.DatMeta;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 /**
  * Created by blei on 7/18/17.
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.MODULE)
 public class StringDecoder extends Decoder<String> {
   private static final int COLUMN_LENGTH = 4;
 
+  StringDecoder(DatMeta meta, Field field) {
+    super(meta, field);
+  }
+
   @Override
-  public String decode(final ByteBuffer buf, final DatMeta datMeta) {
+  public String decode(final ByteBuffer buf) {
+    final DatMeta datMeta = getMeta();
     final int stringOffset = buf.getInt();
     final int beginOffset = datMeta.getMagicOffset() + stringOffset;
     final int bytesToRead = beginOffset + datMeta.getTableRowLength();
