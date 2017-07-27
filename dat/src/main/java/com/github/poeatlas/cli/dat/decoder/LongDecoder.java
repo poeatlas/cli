@@ -16,8 +16,8 @@ public class LongDecoder extends Decoder<Long> {
   }
 
   @Override
-  public Long decode(ByteBuffer buf) {
-    return null;
+  public Long decode(int id, ByteBuffer buf) {
+    return 0L;
   }
 
   @Override

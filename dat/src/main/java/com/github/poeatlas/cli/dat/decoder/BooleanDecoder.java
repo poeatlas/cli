@@ -16,7 +16,7 @@ public class BooleanDecoder extends Decoder<Boolean> {
   }
 
   @Override
-  public Boolean decode(ByteBuffer buf) {
+  public Boolean decode(int id, ByteBuffer buf) {
     return null;
   }
 

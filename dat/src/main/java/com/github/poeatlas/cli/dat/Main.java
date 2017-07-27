@@ -1,7 +1,6 @@
 package com.github.poeatlas.cli.dat;
 
-import com.github.poeatlas.cli.dat.domain.ItemVisualIdentity;
-import com.github.poeatlas.cli.dat.domain.WorldAreas;
+import com.github.poeatlas.cli.dat.domain.AtlasNode;
 import com.github.poeatlas.cli.dat.repository.ItemVisualIdentityRepository;
 import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +27,7 @@ public class Main implements CommandLineRunner {
 
   @Autowired
   private ItemVisualIdentityRepository itemVisualIdentityRepo;
+
 
   /**
    * reads dat files.
@@ -68,11 +68,26 @@ public class Main implements CommandLineRunner {
     //
     // log.info(String.valueOf(stringListField.getType().equals(intListField.getType())));
 
-    DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
-    DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory, ItemVisualIdentity.class);
+    // DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
+    // DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory, ItemVisualIdentity.class);
+    DatParser<AtlasNode> atlasNodeParser = new DatParser<>(directory, AtlasNode.class);
 
-    List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
-    List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
+    // List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
+    // List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
+    List<AtlasNode> atlasNodeList = atlasNodeParser.parse();
+
+    // DatMeta datMeta = null;
+    // datMeta.builder()
+    //     .magicOffset(1111)
+    //     .tableLength(10)
+    //     .tableRowLength(30)
+    //     .tableRows(50)
+    //     .build();
+    //
+    // // log.info(String.valueOf(AtlasNode.class.getDeclaredField("atlasNodeKeys")));
+    // ListDecoder listDecoder = new ListDecoder(datMeta, AtlasNode.class.getDeclaredField("atlasNodeKeys"));
+
+    // List<AtlasNode> atLasNodeList = atlasNodeParser.parse();
     //
     // worldAreasRepo.save(worldAreasRecList);
     // itemVisualIdentityRepo.save(itemVisualIdentityList);

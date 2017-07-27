@@ -123,7 +123,7 @@ public class DatParser<T> {
 
       for (final Field field : fields) {
         final Decoder decoder = decoders.get(field);
-        final Object decodedValue = decoder.decode(buf);
+        final Object decodedValue = decoder.decode(id, buf);
 
         props.put(field.getName(), decodedValue);
 

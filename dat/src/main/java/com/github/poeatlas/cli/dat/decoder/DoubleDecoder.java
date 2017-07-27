@@ -16,8 +16,8 @@ public class DoubleDecoder extends Decoder<Double> {
   }
 
   @Override
-  public Double decode(ByteBuffer buf) {
-    return null;
+  public Double decode(int id, ByteBuffer buf) {
+    return 0.0;
   }
 
   @Override

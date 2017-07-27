@@ -20,7 +20,7 @@ public class StringDecoder extends Decoder<String> {
   }
 
   @Override
-  public String decode(final ByteBuffer buf) {
+  public String decode(int id, final ByteBuffer buf) {
     final DatMeta datMeta = getMeta();
     final int stringOffset = buf.getInt();
     final int beginOffset = datMeta.getMagicOffset() + stringOffset;
