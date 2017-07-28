@@ -7,9 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -48,10 +51,9 @@ public class AtlasNode {
   @OneToMany(mappedBy = "atlasNode")
   private List<ConnectedAtlasNode> atlasNodeKeys;
 
-  // @Spec(ListDecoder.class)
-  // @OneToOne(fetch = FetchType.LAZY)
-  // @JoinColumn(name = "item_visual_identity_id", insertable = false, updatable = false)
-  // private ItemVisualIdentity defaultItemVisualIdentityKey;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "item_visual_identity_id", insertable = false, updatable = false)
+  private ItemVisualIdentity defaultItemVisualIdentityKey;
   //
   // @Spec(ListDecoder.class)
   // @OneToOne(fetch = FetchType.LAZY)

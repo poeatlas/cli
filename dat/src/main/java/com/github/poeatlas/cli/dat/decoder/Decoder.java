@@ -2,7 +2,6 @@ package com.github.poeatlas.cli.dat.decoder;
 
 import com.github.poeatlas.cli.dat.DatMeta;
 import com.github.poeatlas.cli.dat.Main;
-import com.github.poeatlas.cli.dat.exception.DatDecoderException;
 import lombok.Data;
 import org.apache.commons.lang3.ClassUtils;
 import org.reflections.Reflections;
@@ -29,24 +28,26 @@ public abstract class Decoder<T> {
   private final Field field;
   private final boolean skippable;
 
-  // this will create a map of all implemented decoders
+  // this will create a ListMapper of all implemented decoders
   static {
     final Reflections reflections = new Reflections(Main.class.getPackage().getName());
     final Set<Class<? extends Decoder>> subTypes = reflections.getSubTypesOf(Decoder.class);
 
     for (Class<? extends Decoder> impl : subTypes) {
-      Type type = ((ParameterizedType) impl.getGenericSuperclass()).getActualTypeArguments()[0];
+      Type fieldType =
+          ((ParameterizedType) impl.getGenericSuperclass()).getActualTypeArguments()[0];
 
       try {
         // THIS IS THE LINE WHICH SPECIFIES THE CONSTRUCTOR OF THE DECODER
         Constructor<? extends Decoder> declaredConstructor =
             impl.getDeclaredConstructor(DatMeta.class, Field.class);
 
-        if (type instanceof ParameterizedType) {
-          ParameterizedType parameterizedType = (ParameterizedType)type;
-          decoders.put((Class<?>)parameterizedType.getRawType(), declaredConstructor);
+        // it's a parameterized class, e.g. List<T>
+        if (fieldType instanceof ParameterizedType) {
+          ParameterizedType parameterizedType = (ParameterizedType) fieldType;
+          decoders.put((Class<?>) parameterizedType.getRawType(), declaredConstructor);
         } else {
-          decoders.put((Class<?>) type, declaredConstructor);
+          decoders.put((Class<?>) fieldType, declaredConstructor);
         }
       } catch (NoSuchMethodException e) {
         e.printStackTrace();
@@ -68,11 +69,14 @@ public abstract class Decoder<T> {
   public static Decoder<?> getDecoder(final Field field, final DatMeta meta)
       throws IllegalAccessException, InvocationTargetException, InstantiationException {
     Class<?> clazz = ClassUtils.primitiveToWrapper(field.getType());
+    Constructor<? extends Decoder> constructor;
 
-    if (!decoders.containsKey(clazz)) {
-      throw new DatDecoderException("No DAT decoder of name " + clazz.getName());
+    if (!decoders.containsKey(clazz)) { // get the wrapped decoder to make decisions
+      constructor = decoders.get(Object.class);
+    } else {
+      constructor = decoders.get(clazz);
     }
 
-    return decoders.get(clazz).newInstance(meta, field);
+    return constructor.newInstance(meta, field);
   }
 }

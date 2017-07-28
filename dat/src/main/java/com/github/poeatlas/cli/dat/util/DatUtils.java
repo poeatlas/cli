@@ -40,6 +40,6 @@ public class DatUtils {
       }
     }
 
-    return null;
+    throw new RuntimeException("No Id annotation found in class.");
   }
 }

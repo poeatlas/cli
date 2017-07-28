@@ -1,6 +1,7 @@
 package com.github.poeatlas.cli.dat.decoder;
 
 import com.github.poeatlas.cli.dat.DatMeta;
+import com.github.poeatlas.cli.dat.decoder.mapper.ListMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,6 +10,7 @@ import java.lang.reflect.ParameterizedType;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.JoinColumn;
@@ -21,81 +23,78 @@ import javax.persistence.OneToMany;
 public class ListDecoder extends Decoder<List<?>> {
   private static final int COLUMN_LENGTH = 8;
 
-  private final Class<?> externalClass;
-
-  private ReferenceList referenceList;
+  private final ListMapper mapper;
 
   public ListDecoder(DatMeta meta, Field field) {
     super(meta, field);
 
-    this.externalClass = (Class<?>) ((ParameterizedType) field.getGenericType())
-        .getActualTypeArguments()[0];
-
-    determineId();
-
+    // the arg basically gets the T from List<T>.
+    mapper = getMapper((Class<?>) ((ParameterizedType) field.getGenericType())
+        .getActualTypeArguments()[0]);
   }
 
-
-  private void determineId() {
+  private ListMapper getMapper(final Class<?> entityClass) {
     final Field field = getField();
-    final OneToMany otm = field.getAnnotation(OneToMany.class);
+    final OneToMany oneToMany = field.getAnnotation(OneToMany.class);
 
-    if (otm == null) {
-      return;
-    }
-    final String thisName = otm.mappedBy();
+    Objects.requireNonNull(oneToMany,
+        "List field " + field.getName() + " does not contain OneToMany annotation.");
 
-    final Field[] externalClassFields = externalClass.getDeclaredFields();
+    final String mappedByFieldName = oneToMany.mappedBy();
+    final Field[] entityFields = entityClass.getDeclaredFields();
 
-    Field thisConnectedField = null;
+    Field mappedByField = null;
+    Field entityEmbeddedIdField = null;
+
     // find embedded ID and the mappedBy field
-    Field connectedId = null;
-    for (Field f : externalClassFields) {
-      if (f.getAnnotation(EmbeddedId.class) != null) {
-        connectedId = f;
+    for (Field entityField : entityFields) {
+      if (entityField.getAnnotation(EmbeddedId.class) != null) {
+        entityEmbeddedIdField = entityField;
       }
+
       // this id -- this is the mappedBy field
-      if (f.getName().equals(thisName)) {
-        thisConnectedField = f;
+      if (entityField.getName().equals(mappedByFieldName)) {
+        mappedByField = entityField;
       }
     }
 
-    // get joined column annotation for this id field from mappedby and its name
-    final JoinColumn thisJoinColumn = thisConnectedField
-        .getAnnotation(JoinColumn.class);
-    String thisJoinColumnName = "";
-    if (thisJoinColumn != null) {
-      thisJoinColumnName = thisJoinColumn.name();
-    }
+    Objects.requireNonNull(mappedByField, "Could not find field to map to: " + mappedByFieldName);
 
-    String thisFieldName = "";
-    String thatFieldName = "";
-    // determine the this and that id field names (connected to and connected by)
-    if (connectedId != null) {
-      // get the inner class of embeddedIdClass
-      final Class embeddedIdClass = connectedId.getDeclaringClass().getClasses()[0];
+    // get joined column annotation for this id field from mappedBy and its name
+    String entityIdSourceColumnName = mappedByField.getAnnotation(JoinColumn.class).name();
 
-      final Field[] connectedIdFields = embeddedIdClass.getDeclaredFields();
+    Objects.requireNonNull(entityEmbeddedIdField,
+        "Could not find the entity's embedded ID field which contains annotation EmeddedId.");
 
-      for (Field f : connectedIdFields) {
-        final Column col = f.getAnnotation(Column.class);
-        if (col != null && col.name().equals(thisJoinColumnName)) {
-          thisFieldName = f.getName();
-        } else if (col != null) {
-          thatFieldName = f.getName();
-        }
+    // get the embedded id class of entityIdClass
+    final Class<?> entityIdClass = entityEmbeddedIdField.getDeclaringClass().getClasses()[0];
+    final Field[] entityIdFields = entityIdClass.getDeclaredFields();
+
+    Field entityIdSourceField = null;
+    Field entityIdDestField = null;
+
+    for (Field entityIdField : entityIdFields) {
+      final Column col = entityIdField.getAnnotation(Column.class);
+
+      if (col != null && col.name().equals(entityIdSourceColumnName)) {
+        entityIdSourceField = entityIdField;
+      } else if (col != null) {
+        entityIdDestField = entityIdField;
       }
-      referenceList = ReferenceList.builder()
-          .thisFieldName(thisFieldName)
-          .thatFieldName(thatFieldName)
-          .externalClassIdName(connectedId.getName())
-          .embeddedIdClass(embeddedIdClass)
-          .externalClass(externalClass)
-          .build();
     }
 
-    log.info("this field name: {}", referenceList.getThisFieldName());
-    log.info("that field name: {}", referenceList.getThatFieldName());
+    Objects.requireNonNull(entityIdSourceField, "Entity ID class' source field not found.");
+    Objects.requireNonNull(entityIdDestField, "Entity ID class' dest field not found.");
+
+    // we might need entityIdSourceField and/or entityIdDestField later
+
+    return ListMapper.builder()
+        .entityIdSourceFieldName(entityIdSourceField.getName())
+        .entityIdDestFieldName(entityIdDestField.getName())
+        .entityIdFieldName(entityEmbeddedIdField.getName())
+        .entityIdClass(entityIdClass)
+        .entityClass(entityClass)
+        .build();
   }
 
   @Override
@@ -106,13 +105,12 @@ public class ListDecoder extends Decoder<List<?>> {
     final int dataOffset = buf.getInt(); // where the data starts
     final int beginOffset = dataOffset + datMeta.getMagicOffset();
 
-    List<Integer> valueList = new ArrayList<>();
-    for (int i = beginOffset; i < beginOffset + range*4; i+=4) {
-     // log.info("value: {}, offset: {}", buf.getInt(i), i);
-     valueList.add(buf.getInt(i));
+    List<Number> valueList = new ArrayList<>();
+    for (int i = beginOffset; i < beginOffset + range * 4; i += 4) {
+      valueList.add(buf.getInt(i));
     }
 
-    return referenceList.createReferenceObjects(valueList,id);
+    return mapper.map(id, valueList);
   }
 
   @Override
