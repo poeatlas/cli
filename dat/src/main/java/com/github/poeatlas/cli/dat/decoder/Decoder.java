@@ -62,7 +62,7 @@ public abstract class Decoder<T> {
     this.skippable = field.getAnnotation(Transient.class) != null;
   }
 
-  public abstract T decode(int id, final ByteBuffer buf);
+  public abstract T decode(int id, final ByteBuffer buf) throws IllegalAccessException, InstantiationException;
 
   public abstract int getColumnLength();
 

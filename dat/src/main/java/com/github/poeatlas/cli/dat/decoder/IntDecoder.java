@@ -17,7 +17,7 @@ public class IntDecoder extends Decoder<Integer> {
 
   @Override
   public Integer decode(int id, ByteBuffer buf) {
-    return 0;
+    return buf.getInt();
   }
 
   @Override

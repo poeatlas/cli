@@ -17,7 +17,8 @@ public class DoubleDecoder extends Decoder<Double> {
 
   @Override
   public Double decode(int id, ByteBuffer buf) {
-    return 0.0;
+
+    return buf.getDouble();
   }
 
   @Override

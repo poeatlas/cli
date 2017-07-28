@@ -34,10 +34,10 @@ public class AtlasNode {
   private long worldAreasKey;
 
   @Column(nullable = false)
-  private double posX;
+  private float posX;
 
   @Column(nullable = false)
-  private double posY;
+  private float posY;
 
   @Transient
   private int unknown4;

@@ -1,6 +1,9 @@
 package com.github.poeatlas.cli.dat;
 
 import com.github.poeatlas.cli.dat.domain.AtlasNode;
+import com.github.poeatlas.cli.dat.domain.ItemVisualIdentity;
+import com.github.poeatlas.cli.dat.domain.WorldAreas;
+import com.github.poeatlas.cli.dat.repository.AtlasNodeRepository;
 import com.github.poeatlas.cli.dat.repository.ItemVisualIdentityRepository;
 import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,9 @@ import java.util.List;
 @Slf4j
 @SuppressWarnings("PMD.UseUtilityClass")
 public class Main implements CommandLineRunner {
+  @Autowired
+  private AtlasNodeRepository atlasNodeRepo;
+
   @Autowired
   private WorldAreasRepository worldAreasRepo;
 
@@ -68,12 +74,12 @@ public class Main implements CommandLineRunner {
     //
     // log.info(String.valueOf(stringListField.getType().equals(intListField.getType())));
 
-    // DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
-    // DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory, ItemVisualIdentity.class);
+    DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
+    DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory, ItemVisualIdentity.class);
     DatParser<AtlasNode> atlasNodeParser = new DatParser<>(directory, AtlasNode.class);
 
-    // List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
-    // List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
+    List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
+    List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
     List<AtlasNode> atlasNodeList = atlasNodeParser.parse();
 
     // DatMeta datMeta = null;
@@ -89,7 +95,9 @@ public class Main implements CommandLineRunner {
 
     // List<AtlasNode> atLasNodeList = atlasNodeParser.parse();
     //
-    // worldAreasRepo.save(worldAreasRecList);
-    // itemVisualIdentityRepo.save(itemVisualIdentityList);
+
+    worldAreasRepo.save(worldAreasRecList);
+    itemVisualIdentityRepo.save(itemVisualIdentityList);
+    atlasNodeRepo.save(atlasNodeList);
   }
 }

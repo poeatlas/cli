@@ -5,20 +5,17 @@ import com.github.poeatlas.cli.dat.DatMeta;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
-/**
- * Created by NothingSoup on 7/19/17.
- */
-public class LongDecoder extends Decoder<Long> {
-  private final static int COLUMN_LENGTH = 8;
+public class FloatDecoder  extends Decoder<Float> {
+  private final static int COLUMN_LENGTH = 4;
 
-  LongDecoder(DatMeta meta, Field field) {
+  FloatDecoder(DatMeta meta, Field field) {
     super(meta, field);
   }
 
   @Override
-  public Long decode(int id, ByteBuffer buf) {
+  public Float decode(int id, ByteBuffer buf) {
 
-    return buf.getLong();
+    return buf.getFloat();
   }
 
   @Override
@@ -26,3 +23,4 @@ public class LongDecoder extends Decoder<Long> {
     return COLUMN_LENGTH;
   }
 }
+
