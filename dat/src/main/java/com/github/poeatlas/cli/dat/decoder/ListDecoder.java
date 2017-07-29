@@ -109,7 +109,7 @@ public class ListDecoder extends Decoder<List<?>> {
     for (int i = beginOffset; i < beginOffset + range * 4; i += 4) {
       valueList.add(buf.getInt(i));
     }
-
+    log.info("current atlasNode Id: {}",id);
     return mapper.map(id, valueList);
   }
 

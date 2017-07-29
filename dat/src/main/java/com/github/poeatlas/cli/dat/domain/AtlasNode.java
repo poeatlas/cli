@@ -5,6 +5,7 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -48,12 +49,20 @@ public class AtlasNode {
   @Transient
   private int unknown6;
 
-  @OneToMany(mappedBy = "atlasNode")
+  @OneToMany(mappedBy = "atlasNode", cascade = CascadeType.ALL)
   private List<ConnectedAtlasNode> atlasNodeKeys;
 
+  // @OneToOne(fetch = FetchType.LAZY)
+  // @JoinColumn(name = "item_visual_identity_id", insertable = false, updatable = false)
+  // private ItemVisualIdentity defaultItemVisualIdentityKey;
   @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "item_visual_identity_id", insertable = false, updatable = false)
+  @JoinColumn(name = "item_visual_identity_id", referencedColumnName = "id", updatable = false)
   private ItemVisualIdentity defaultItemVisualIdentityKey;
+
+
+  // public ItemVisualIdentity getDefaultItemVisualIdentityKey() {
+  //   return defaultItemVisualIdentityKey;
+  // }
   //
   // @Spec(ListDecoder.class)
   // @OneToOne(fetch = FetchType.LAZY)

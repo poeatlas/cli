@@ -3,15 +3,15 @@ package com.github.poeatlas.cli.dat.decoder;
 import static org.springframework.beans.PropertyAccessorFactory.forBeanPropertyAccess;
 
 import com.github.poeatlas.cli.dat.DatMeta;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.PropertyAccessor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
-import java.util.Objects;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 
+@Slf4j
 public class WrappedDecoder extends Decoder<Object> {
   WrappedDecoder(DatMeta meta, Field field) {
     super(meta, field);
@@ -20,10 +20,10 @@ public class WrappedDecoder extends Decoder<Object> {
   @Override
   public Object decode(int id, ByteBuffer buf) throws IllegalAccessException, InstantiationException {
     final Field field = getField();
-    final OneToOne oneToOne = field.getAnnotation(OneToOne.class);
+    // final OneToOne oneToOne = field.getAnnotation(OneToOne.class);
 
-    Objects.requireNonNull(oneToOne,
-        "Wrapped field " + field.getName() + "does not contain OneToOne");
+    // Objects.requireNonNull(oneToOne,
+    //     "Wrapped field " + field.getName() + "does not contain OneToOne");
 
     Class foreignEntityClass = (Class) field.getType();
     final Field[] foreignEntityFields = foreignEntityClass.getDeclaredFields();

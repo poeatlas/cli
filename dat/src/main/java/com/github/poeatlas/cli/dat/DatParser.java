@@ -138,9 +138,8 @@ public class DatParser<T> {
       recordAccessor.setPropertyValues(props);
       valueList.add(record);
 
-      log.info(record.toString());
+      // log.info(record.toString());
     }
-
     return valueList;
   }
 }
