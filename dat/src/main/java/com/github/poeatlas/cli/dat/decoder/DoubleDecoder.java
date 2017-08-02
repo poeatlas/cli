@@ -1,6 +1,7 @@
 package com.github.poeatlas.cli.dat.decoder;
 
 import com.github.poeatlas.cli.dat.DatMeta;
+import com.github.poeatlas.cli.dat.util.DecoderUtils;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -17,8 +18,14 @@ public class DoubleDecoder extends Decoder<Double> {
 
   @Override
   public Double decode(int id, ByteBuffer buf) {
+    Double value = buf.getDouble();
 
-    return buf.getDouble();
+    Long convertValue = ((ByteBuffer) ByteBuffer.allocate(8).putDouble(value).flip()).getLong();
+
+    if (DecoderUtils.isNull(convertValue)) {
+      return null;
+    }
+    return value ;
   }
 
   @Override

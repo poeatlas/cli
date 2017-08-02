@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @Table(name = "item_visual_identity")
 public class ItemVisualIdentity {
   @Id
-  private int id;
+  private long id;
 
   @Column(nullable = false)
   private String itemKey;

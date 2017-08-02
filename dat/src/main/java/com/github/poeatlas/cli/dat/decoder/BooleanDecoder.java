@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  * Created by NothingSoup on 7/19/17.
  */
 public class BooleanDecoder extends Decoder<Boolean> {
-  private final static int COLUMN_LENGTH = 4;
+  private final static int COLUMN_LENGTH = 1;
 
   BooleanDecoder(DatMeta meta, Field field) {
     super(meta, field);
@@ -17,7 +17,7 @@ public class BooleanDecoder extends Decoder<Boolean> {
 
   @Override
   public Boolean decode(int id, ByteBuffer buf) {
-    return null;
+    return buf.get() == 1;
   }
 
   @Override

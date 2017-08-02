@@ -1,6 +1,7 @@
 package com.github.poeatlas.cli.dat.decoder;
 
 import com.github.poeatlas.cli.dat.DatMeta;
+import com.github.poeatlas.cli.dat.util.DecoderUtils;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -17,8 +18,11 @@ public class LongDecoder extends Decoder<Long> {
 
   @Override
   public Long decode(int id, ByteBuffer buf) {
-
-    return buf.getLong();
+    Long value = buf.getLong();
+    if (DecoderUtils.isNull(value)) {
+      return null;
+    }
+    return value;
   }
 
   @Override

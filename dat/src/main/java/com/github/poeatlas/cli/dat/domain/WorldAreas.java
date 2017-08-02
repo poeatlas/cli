@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @Table(name = "world_areas")
 public class WorldAreas {
   @Id
-  private int id;
+  private long id;
 
   @Column(nullable = false)
   private String areaKey;

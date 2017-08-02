@@ -1,5 +1,6 @@
 package com.github.poeatlas.cli.dat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.poeatlas.cli.dat.domain.AtlasNode;
 import com.github.poeatlas.cli.dat.domain.ItemVisualIdentity;
 import com.github.poeatlas.cli.dat.domain.WorldAreas;
@@ -33,7 +34,6 @@ public class Main implements CommandLineRunner {
 
   @Autowired
   private ItemVisualIdentityRepository itemVisualIdentityRepo;
-
 
   /**
    * reads dat files.
@@ -99,5 +99,12 @@ public class Main implements CommandLineRunner {
     worldAreasRepo.save(worldAreasRecList);
     itemVisualIdentityRepo.save(itemVisualIdentityList);
     atlasNodeRepo.save(atlasNodeList);
+
+    List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
+
+    ObjectMapper mapper = new ObjectMapper();
+    AtlasNode node = atlasNodes.get(0);
+
+    mapper.writeValue(new File("/home/NothingSoup/projects/poeatlas/cli/test.json"),node);
   }
 }

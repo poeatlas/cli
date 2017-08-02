@@ -39,6 +39,7 @@ allprojects {
     compile group: 'net.sf.jopt-simple', name: 'jopt-simple', version: '5.0.3'
 
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+
   }
 
   eclipse {

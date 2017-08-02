@@ -3,6 +3,7 @@ package com.github.poeatlas.cli.dat.decoder;
 import static org.springframework.beans.PropertyAccessorFactory.forBeanPropertyAccess;
 
 import com.github.poeatlas.cli.dat.DatMeta;
+import com.github.poeatlas.cli.dat.exception.DatDecoderException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.PropertyAccessor;
 
@@ -13,19 +14,25 @@ import javax.persistence.Id;
 
 @Slf4j
 public class WrappedDecoder extends Decoder<Object> {
+  private Decoder decoder;
+
+  private String foreignEntityIdFieldName;
+
+  private Class<?> foreignEntityClass;
+
   WrappedDecoder(DatMeta meta, Field field) {
     super(meta, field);
+    init();
   }
 
-  @Override
-  public Object decode(int id, ByteBuffer buf) throws IllegalAccessException, InstantiationException {
+  private void init() {
     final Field field = getField();
     // final OneToOne oneToOne = field.getAnnotation(OneToOne.class);
 
     // Objects.requireNonNull(oneToOne,
     //     "Wrapped field " + field.getName() + "does not contain OneToOne");
 
-    Class foreignEntityClass = (Class) field.getType();
+    foreignEntityClass = field.getType();
     final Field[] foreignEntityFields = foreignEntityClass.getDeclaredFields();
 
     Field foreignEntityIdField = null;
@@ -37,24 +44,44 @@ public class WrappedDecoder extends Decoder<Object> {
       }
     }
 
-    Decoder decoder = null;
-    try {
-      decoder = Decoder.getDecoder(foreignEntityIdField, getMeta());
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();
+    if (foreignEntityIdField != null) {
+      foreignEntityIdFieldName = foreignEntityIdField.getName();
     }
 
+    try {
+      decoder = Decoder.getDecoder(foreignEntityIdField, getMeta());
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
+      throw new DatDecoderException("Problem decoding dat: " + e);
+    }
+  }
+
+  @Override
+  public Object decode(int id, ByteBuffer buf) {
     // create foreign key object and set fields with reflection
-    final Object foreignEntityObj = foreignEntityClass.newInstance();
+    final Object foreignEntityObj;
+    try {
+      foreignEntityObj = foreignEntityClass.newInstance();
+    } catch (InstantiationException | IllegalAccessException e) {
+      throw new DatDecoderException("Problem decoding dat: " + e);
+    }
     final PropertyAccessor foreignEntityAccessor = forBeanPropertyAccess(foreignEntityObj);
 
-    foreignEntityAccessor.setPropertyValue(foreignEntityIdField.getName(), decoder.decode(id,buf));
+
+    try {
+      Number decodedValue = (Number) decoder.decode(id,buf);
+      if(decodedValue == null) {
+        return null;
+      }
+      foreignEntityAccessor.setPropertyValue(foreignEntityIdFieldName, decodedValue);
+    } catch (IllegalAccessException | InstantiationException e) {
+      throw new DatDecoderException("Problem decoding dat: " + e);
+    }
 
     return foreignEntityObj;
   }
 
   @Override
   public int getColumnLength() {
-    return 0;
+    return decoder.getColumnLength();
   }
 }
