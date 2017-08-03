@@ -19,12 +19,18 @@ public class ListMapper {
   private String entityIdDestFieldName;
   private String entityIdFieldName;
 
+  /**
+   * maps values for list of items to respective sourceID item.
+   * @param sourceId id of object that values will be mapped to
+   * @param list list of ids
+   * @return list of objects that are mapped
+   */
   public List<?> map(final int sourceId, final List<? extends Number> list) {
-    List<Object> mappedList = new ArrayList<>();
+    final List<Object> mappedList = new ArrayList<>();
 
     try {
       // create external object and set fields
-      for (Number destId : list) {
+      for (final Number destId : list) {
         final Object entityObj = entityClass.newInstance();
         final PropertyAccessor entityAccessor = forBeanPropertyAccess(entityObj);
 

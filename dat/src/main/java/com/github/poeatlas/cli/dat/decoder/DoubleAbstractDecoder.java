@@ -9,20 +9,20 @@ import java.nio.ByteBuffer;
 /**
  * Created by NothingSoup on 7/19/17.
  */
-public class DoubleDecoder extends Decoder<Double> {
-  private final static int COLUMN_LENGTH = 4;
+public class DoubleAbstractDecoder extends AbstractDecoder<Double> {
+  private static final int COLUMN_LENGTH = 4;
 
-  DoubleDecoder(DatMeta meta, Field field) {
+  DoubleAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
   }
 
   @Override
-  public Double decode(int id, ByteBuffer buf) {
-    Double value = buf.getDouble();
+  public Double decode(final int id, final ByteBuffer buf) {
+    final Double value = buf.getDouble();
 
-    Long convertValue = ((ByteBuffer) ByteBuffer.allocate(8).putDouble(value).flip()).getLong();
+    // Long convertValue = ((ByteBuffer) ByteBuffer.allocate(8).putDouble(value).flip()).getLong();
 
-    if (DecoderUtils.isNull(convertValue)) {
+    if (DecoderUtils.isNull(value)) {
       return null;
     }
     return value ;

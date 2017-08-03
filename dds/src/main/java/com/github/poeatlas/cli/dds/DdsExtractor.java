@@ -56,7 +56,7 @@ public class DdsExtractor {
     // converts brotli encoded file into ByteArrayInputStream
     @Cleanup final BrotliInputStream bis = new BrotliInputStream(is);
     final byte[] decodedBytes = IOUtils.readFully(bis, size);
-    final ByteArrayInputStream bais = new ByteArrayInputStream(decodedBytes);
+    @Cleanup final ByteArrayInputStream bais = new ByteArrayInputStream(decodedBytes);
     @Cleanup final ImageInputStream iis = ImageIO.createImageInputStream(bais);
 
     // change extension of file from dds to png if found

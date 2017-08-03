@@ -6,20 +6,18 @@ import com.github.poeatlas.cli.dat.util.DecoderUtils;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
-public class FloatDecoder  extends Decoder<Float> {
-  private final static int COLUMN_LENGTH = 4;
+public class FloatAbstractDecoder extends AbstractDecoder<Float> {
+  private static final int COLUMN_LENGTH = 4;
 
-  FloatDecoder(DatMeta meta, Field field) {
+  FloatAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
   }
 
   @Override
-  public Float decode(int id, ByteBuffer buf) {
-    Float value = buf.getFloat();
+  public Float decode(final int id, final ByteBuffer buf) {
+    final Float value = buf.getFloat();
 
-    Integer convertValue = ((ByteBuffer) ByteBuffer.allocate(4).putFloat(value).flip()).getInt();
-
-    if (DecoderUtils.isNull(convertValue)) {
+    if (DecoderUtils.isNull(value)) {
       return null;
     }
     return value;

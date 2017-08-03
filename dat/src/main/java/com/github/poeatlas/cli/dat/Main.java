@@ -16,6 +16,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -60,7 +61,11 @@ public class Main implements CommandLineRunner {
   }
 
   @Override
-  public void run(String... args) throws Exception {
+  public void run(final String... args)
+      throws IOException,
+      InstantiationException,
+      IllegalAccessException,
+      InvocationTargetException {
     final File directory = new File(args[0]);
     if (!directory.isDirectory()) {
       throw new IOException(directory.getPath() + "is not a directory");
@@ -74,37 +79,26 @@ public class Main implements CommandLineRunner {
     //
     // log.info(String.valueOf(stringListField.getType().equals(intListField.getType())));
 
-    DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
-    DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory, ItemVisualIdentity.class);
-    DatParser<AtlasNode> atlasNodeParser = new DatParser<>(directory, AtlasNode.class);
+    final DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
+    final DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory,
+        ItemVisualIdentity.class);
+    final DatParser<AtlasNode> atlasNodeParser = new DatParser<>(directory, AtlasNode.class);
 
-    List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
-    List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
-    List<AtlasNode> atlasNodeList = atlasNodeParser.parse();
-
-    // DatMeta datMeta = null;
-    // datMeta.builder()
-    //     .magicOffset(1111)
-    //     .tableLength(10)
-    //     .tableRowLength(30)
-    //     .tableRows(50)
-    //     .build();
-    //
-    // // log.info(String.valueOf(AtlasNode.class.getDeclaredField("atlasNodeKeys")));
-    // ListDecoder listDecoder = new ListDecoder(datMeta, AtlasNode.class.getDeclaredField("atlasNodeKeys"));
-
-    // List<AtlasNode> atLasNodeList = atlasNodeParser.parse();
-    //
+    final List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
+    final List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
+    final List<AtlasNode> atlasNodeList = atlasNodeParser.parse();
 
     worldAreasRepo.save(worldAreasRecList);
     itemVisualIdentityRepo.save(itemVisualIdentityList);
     atlasNodeRepo.save(atlasNodeList);
 
-    List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
+    final List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
 
-    ObjectMapper mapper = new ObjectMapper();
-    AtlasNode node = atlasNodes.get(0);
+    final ObjectMapper mapper = new ObjectMapper();
+    // AtlasNode node = atlasNodes.get(0);
 
-    mapper.writeValue(new File("/home/NothingSoup/projects/poeatlas/cli/test.json"),node);
+    final File jsonFile = new File("test.json");
+    mapper.writeValue(jsonFile,atlasNodes);
+
   }
 }

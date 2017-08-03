@@ -9,16 +9,17 @@ import java.nio.ByteBuffer;
 /**
  * Created by blei on 7/18/17.
  */
-public class IntDecoder extends Decoder<Integer> {
+public class IntAbstractDecoder extends AbstractDecoder<Integer> {
   private static final int COLUMN_LENGTH = 4;
 
-  IntDecoder(DatMeta meta, Field field) {
+  IntAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
   }
 
   @Override
-  public Integer decode(int id, ByteBuffer buf) {
-    Integer value = buf.getInt();
+  public Integer decode(final int id, final ByteBuffer buf) {
+    final Integer value = buf.getInt();
+
     if (DecoderUtils.isNull(value)) {
       return null;
     }

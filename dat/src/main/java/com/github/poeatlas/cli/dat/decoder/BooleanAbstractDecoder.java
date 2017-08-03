@@ -8,15 +8,15 @@ import java.nio.ByteBuffer;
 /**
  * Created by NothingSoup on 7/19/17.
  */
-public class BooleanDecoder extends Decoder<Boolean> {
-  private final static int COLUMN_LENGTH = 1;
+public class BooleanAbstractDecoder extends AbstractDecoder<Boolean> {
+  private static final int COLUMN_LENGTH = 1;
 
-  BooleanDecoder(DatMeta meta, Field field) {
+  BooleanAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
   }
 
   @Override
-  public Boolean decode(int id, ByteBuffer buf) {
+  public Boolean decode(final int id, final ByteBuffer buf) {
     return buf.get() == 1;
   }
 

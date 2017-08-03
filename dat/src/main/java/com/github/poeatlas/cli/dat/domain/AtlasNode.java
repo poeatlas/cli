@@ -69,27 +69,69 @@ public class AtlasNode {
 
   @JsonIgnore
   @OneToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "shaped_item_visual_identity_id", referencedColumnName = "id", updatable = false)
+  @JoinColumn(name = "shaped_item_visual_identity_id",
+      referencedColumnName = "id",
+      updatable = false)
   private ItemVisualIdentity defaultShapedItemVisualIdentityKey;
 
+  /**
+   * get connected atlas node ids for this atlas node.
+   * @return list of atlas node ids
+   */
   @JsonProperty("connected_map_ids")
   public List<Integer> getConnectedMapIds() {
-    List<Integer> idList = new ArrayList<>();
-    for (ConnectedAtlasNode node: getAtlasNodeKeys()) {
+    final List<ConnectedAtlasNode> connectedAtlasNodeList = getAtlasNodeKeys();
+
+    if (connectedAtlasNodeList == null) {
+      return null;
+    }
+
+    final List<Integer> idList = new ArrayList<>();
+
+    for (final ConnectedAtlasNode node: getAtlasNodeKeys()) {
       idList.add(node.getId().getConnectedAtlasNodeId());
     }
+
     return idList;
   }
 
-  @JsonProperty("world_areas_id")
-  public Long getWorldAreasId() {
-    return getWorldAreas().getId();
+  /**
+   * get name of map.
+   * @return name of map
+   */
+  @JsonProperty("world_areas_name")
+  public String getWorldAreasName() {
+    return getWorldAreas().getName();
   }
-  // @Spec(value = StringDecoder.class, skip = true)
+
+  /**
+   * get dds file path for regular map.
+   * @return dds file path string
+   */
+  @JsonProperty("item_dds")
+  public String getItemDds() {
+    return getDefaultItemVisualIdentityKey().getDdsFile();
+  }
+
+  /**
+   * get dds file path for shaped map.
+   * @return dds file path string
+   */
+  @JsonProperty("shaped_item_dds")
+  public String getShapedItemDds() {
+    final ItemVisualIdentity key = getDefaultShapedItemVisualIdentityKey();
+
+    if (key == null) {
+      return null;
+    }
+
+    return key.getDdsFile();
+  }
+  // @Spec(value = StringAbstractDecoder.class, skip = true)
   // @Transient
   // private String flavourText;
   //
-  // @Spec(BooleanDecoder.class)
+  // @Spec(BooleanAbstractDecoder.class)
   // @Column(nullable = false)
   // private boolean sextantable;
 }

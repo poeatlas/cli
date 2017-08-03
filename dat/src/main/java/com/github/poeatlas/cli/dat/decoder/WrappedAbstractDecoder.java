@@ -10,17 +10,18 @@ import org.springframework.beans.PropertyAccessor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import javax.persistence.Id;
 
 @Slf4j
-public class WrappedDecoder extends Decoder<Object> {
-  private Decoder decoder;
+public class WrappedAbstractDecoder extends AbstractDecoder<Object> {
+  private AbstractDecoder decoder;
 
   private String foreignEntityIdFieldName;
 
   private Class<?> foreignEntityClass;
 
-  WrappedDecoder(DatMeta meta, Field field) {
+  WrappedAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
     init();
   }
@@ -37,7 +38,7 @@ public class WrappedDecoder extends Decoder<Object> {
 
     Field foreignEntityIdField = null;
     // find Id field within foreign key object class
-    for (Field entityField : foreignEntityFields) {
+    for (final Field entityField : foreignEntityFields) {
       if (entityField.getAnnotation(Id.class) != null) {
         foreignEntityIdField = entityField;
         break;
@@ -48,33 +49,37 @@ public class WrappedDecoder extends Decoder<Object> {
       foreignEntityIdFieldName = foreignEntityIdField.getName();
     }
 
+    Objects.requireNonNull(foreignEntityIdField,
+        "Missing foreign entity id.");
+    Objects.requireNonNull(getMeta(),
+        "Missing DatMeta--cannot decode without this information.");
     try {
-      decoder = Decoder.getDecoder(foreignEntityIdField, getMeta());
-    } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-      throw new DatDecoderException("Problem decoding dat: " + e);
+      decoder = AbstractDecoder.getDecoder(foreignEntityIdField, getMeta());
+    } catch (IllegalAccessException | InstantiationException | InvocationTargetException ex) {
+      throw new DatDecoderException("Problem decoding dat: " + ex);
     }
   }
 
   @Override
-  public Object decode(int id, ByteBuffer buf) {
+  public Object decode(final int id, final ByteBuffer buf) {
     // create foreign key object and set fields with reflection
     final Object foreignEntityObj;
     try {
       foreignEntityObj = foreignEntityClass.newInstance();
-    } catch (InstantiationException | IllegalAccessException e) {
-      throw new DatDecoderException("Problem decoding dat: " + e);
+    } catch (InstantiationException | IllegalAccessException ex) {
+      throw new DatDecoderException("Problem decoding dat: " + ex);
     }
     final PropertyAccessor foreignEntityAccessor = forBeanPropertyAccess(foreignEntityObj);
 
 
     try {
-      Number decodedValue = (Number) decoder.decode(id,buf);
-      if(decodedValue == null) {
+      final Number decodedValue = (Number) decoder.decode(id,buf);
+      if (decodedValue == null) {
         return null;
       }
       foreignEntityAccessor.setPropertyValue(foreignEntityIdFieldName, decodedValue);
-    } catch (IllegalAccessException | InstantiationException e) {
-      throw new DatDecoderException("Problem decoding dat: " + e);
+    } catch (IllegalAccessException | InstantiationException ex) {
+      throw new DatDecoderException("Problem decoding dat: " + ex);
     }
 
     return foreignEntityObj;

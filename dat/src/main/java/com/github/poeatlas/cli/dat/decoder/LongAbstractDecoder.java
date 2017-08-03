@@ -9,16 +9,16 @@ import java.nio.ByteBuffer;
 /**
  * Created by NothingSoup on 7/19/17.
  */
-public class LongDecoder extends Decoder<Long> {
-  private final static int COLUMN_LENGTH = 8;
+public class LongAbstractDecoder extends AbstractDecoder<Long> {
+  private static final int COLUMN_LENGTH = 8;
 
-  LongDecoder(DatMeta meta, Field field) {
+  LongAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
   }
 
   @Override
-  public Long decode(int id, ByteBuffer buf) {
-    Long value = buf.getLong();
+  public Long decode(final int id, final ByteBuffer buf) {
+    final Long value = buf.getLong();
     if (DecoderUtils.isNull(value)) {
       return null;
     }

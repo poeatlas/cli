@@ -12,15 +12,15 @@ import java.nio.ByteBuffer;
  * Created by blei on 7/18/17.
  */
 @Slf4j
-public class StringDecoder extends Decoder<String> {
+public class StringAbstractDecoder extends AbstractDecoder<String> {
   private static final int COLUMN_LENGTH = 4;
 
-  StringDecoder(DatMeta meta, Field field) {
+  StringAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
   }
 
   @Override
-  public String decode(int id, final ByteBuffer buf) {
+  public String decode(final int id, final ByteBuffer buf) {
     final DatMeta datMeta = getMeta();
     final int stringOffset = buf.getInt();
     final int beginOffset = datMeta.getMagicOffset() + stringOffset;
@@ -42,19 +42,12 @@ public class StringDecoder extends Decoder<String> {
       }
     }
 
-    final int valueLength = endOffset - beginOffset;
-
     // empty string; end it
     if (beginOffset == endOffset) {
       return "";
     }
 
-    // check for string ending in x00 and another starting with x00
-
-    // if (buf.getInt(endOffset + 1) == 0) {
-    //   endOffset = endOffset + 1;
-    // }
-
+    final int valueLength = endOffset - beginOffset;
     // convert value into string + remove terminating char
     final char[] nameBuf = new char[valueLength / 2];
 

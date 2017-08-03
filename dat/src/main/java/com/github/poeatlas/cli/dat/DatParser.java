@@ -1,6 +1,6 @@
 package com.github.poeatlas.cli.dat;
 
-import com.github.poeatlas.cli.dat.decoder.Decoder;
+import com.github.poeatlas.cli.dat.decoder.AbstractDecoder;
 import com.github.poeatlas.cli.dat.util.DatUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +34,18 @@ public class DatParser<T> {
 
   private final File file;
 
-  private Class<T> clazz;
+  private final Class<T> clazz;
 
   private DatMeta datMeta;
 
   private ByteBuffer buf;
 
+  /**
+   * initializes varaibles for parsing of dat file.
+   * @param directory directory of dat file.
+   * @param clazz class of dat--e.g. AtlasNode.
+   * @throws IOException file is invalid.
+   */
   public DatParser(final File directory, final Class<T> clazz) throws IOException {
     this.file = new File(directory, clazz.getSimpleName() + ".dat");
     this.clazz = clazz;
@@ -94,7 +100,7 @@ public class DatParser<T> {
   }
 
   /**
-   * WIP.
+   * parses dat file and writes to PropertyAccessor of respective clazz.
    */
   public List<T> parse()
       throws IOException,
@@ -106,15 +112,16 @@ public class DatParser<T> {
     final int tableEndOffset = datMeta.getMagicOffset();
     final int tableRowLength = datMeta.getTableRowLength();
     final List<T> valueList = new ArrayList<>();
-    final Map<Field, Decoder<?>> decoders = new HashMap<>();
+    final Map<Field, AbstractDecoder<?>> decoders = new HashMap<>();
 
     // create all decoders
     for (final Field field : fields) {
-      decoders.put(field, Decoder.getDecoder(field, datMeta));
+      decoders.put(field, AbstractDecoder.getDecoder(field, datMeta));
     }
 
-    for (int position = 4, id = 0; position < tableEndOffset; position += tableRowLength, id++) {
-      final Map<String, Object> props = new HashMap<>();
+    final Map<String, Object> props = new HashMap<>();
+    for (int position = 4,
+         id = 0; position < tableEndOffset; position += tableRowLength, id++) {
       int nextPosition = position;
 
       // set id value
@@ -122,7 +129,7 @@ public class DatParser<T> {
       buf.position(position);
 
       for (final Field field : fields) {
-        final Decoder decoder = decoders.get(field);
+        final AbstractDecoder decoder = decoders.get(field);
         final Object decodedValue = decoder.decode(id, buf);
 
         props.put(field.getName(), decodedValue);

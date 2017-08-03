@@ -20,12 +20,17 @@ import javax.persistence.OneToMany;
  * Created by NothingSoup on 7/19/17.
  */
 @Slf4j
-public class ListDecoder extends Decoder<List<?>> {
+public class ListAbstractDecoder extends AbstractDecoder<List<?>> {
   private static final int COLUMN_LENGTH = 8;
 
   private final ListMapper mapper;
 
-  public ListDecoder(DatMeta meta, Field field) {
+  /**
+   * constructor for ListAbstractDecoder.
+   * @param meta contains information to read dat file
+   * @param field field we are decoding
+   */
+  public ListAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
 
     // the arg basically gets the T from List<T>.
@@ -47,7 +52,7 @@ public class ListDecoder extends Decoder<List<?>> {
     Field entityEmbeddedIdField = null;
 
     // find embedded ID and the mappedBy field
-    for (Field entityField : entityFields) {
+    for (final Field entityField : entityFields) {
       if (entityField.getAnnotation(EmbeddedId.class) != null) {
         entityEmbeddedIdField = entityField;
       }
@@ -61,7 +66,7 @@ public class ListDecoder extends Decoder<List<?>> {
     Objects.requireNonNull(mappedByField, "Could not find field to map to: " + mappedByFieldName);
 
     // get joined column annotation for this id field from mappedBy and its name
-    String entityIdSourceColumnName = mappedByField.getAnnotation(JoinColumn.class).name();
+    final String entityIdSourceColumnName = mappedByField.getAnnotation(JoinColumn.class).name();
 
     Objects.requireNonNull(entityEmbeddedIdField,
         "Could not find the entity's embedded ID field which contains annotation EmeddedId.");
@@ -73,7 +78,7 @@ public class ListDecoder extends Decoder<List<?>> {
     Field entityIdSourceField = null;
     Field entityIdDestField = null;
 
-    for (Field entityIdField : entityIdFields) {
+    for (final Field entityIdField : entityIdFields) {
       final Column col = entityIdField.getAnnotation(Column.class);
 
       if (col != null && col.name().equals(entityIdSourceColumnName)) {
@@ -97,15 +102,21 @@ public class ListDecoder extends Decoder<List<?>> {
         .build();
   }
 
+  /**
+   * decodes list.
+   * @param id id of value
+   * @param buf buffered dat file we are reading from
+   * @return list of values
+   */
   @Override
   @SneakyThrows
-  public List<?> decode(int id, ByteBuffer buf) {
+  public List<?> decode(final int id, final ByteBuffer buf) {
     final DatMeta datMeta = getMeta();
     final int range = buf.getInt(); // number of values in list
     final int dataOffset = buf.getInt(); // where the data starts
     final int beginOffset = dataOffset + datMeta.getMagicOffset();
 
-    List<Number> valueList = new ArrayList<>();
+    final List<Number> valueList = new ArrayList<>();
     for (int i = beginOffset; i < beginOffset + range * 4; i += 4) {
       valueList.add(buf.getInt(i));
     }
