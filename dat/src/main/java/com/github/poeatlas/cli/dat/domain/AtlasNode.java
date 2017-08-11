@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,16 +109,20 @@ public class AtlasNode {
    * get dds file path for regular map.
    * @return dds file path string
    */
-  @JsonProperty("item_dds")
-  public String getItemDds() {
-    return getDefaultItemVisualIdentityKey().getDdsFile();
+  @JsonProperty("icon_path")
+  public String getItemIconPath() {
+    String iconPath = getDefaultItemVisualIdentityKey().getDdsFile();
+    iconPath = iconPath.replaceFirst("\\.dds$", "");
+    iconPath = StringUtils.join(iconPath, ".png");
+
+    return iconPath;
   }
 
   /**
    * get dds file path for shaped map.
    * @return dds file path string
    */
-  @JsonProperty("shaped_item_dds")
+  @JsonProperty("shaped_icon_path")
   public String getShapedItemDds() {
     final ItemVisualIdentity key = getDefaultShapedItemVisualIdentityKey();
 
@@ -125,7 +130,11 @@ public class AtlasNode {
       return null;
     }
 
-    return key.getDdsFile();
+    String iconPath = key.getDdsFile();
+    iconPath = iconPath.replaceFirst("\\.dds$", "");
+    iconPath = StringUtils.join(iconPath, ".png");
+
+    return iconPath;
   }
   // @Spec(value = StringAbstractDecoder.class, skip = true)
   // @Transient

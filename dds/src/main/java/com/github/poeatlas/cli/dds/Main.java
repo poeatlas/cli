@@ -52,12 +52,18 @@ public class Main {
         .ofType(Integer.class)
         .defaultsTo(0);
 
+    final OptionSpec<File> rootSpec = parser.accepts("root", "Root path of dds")
+        .withRequiredArg()
+        .ofType(File.class)
+        .required();
+
     final OptionSpec<File> files = parser.nonOptions().ofType(File.class);
     final OptionSet opt = parser.parse(args);
     final int mipmap = opt.valueOf(mipmapSpec);
+    final File root = opt.valueOf(rootSpec);
 
     // create + set mipmap for DdsExtractor
-    final DdsExtractor extractor = new DdsExtractor(mipmap);
+    final DdsExtractor extractor = new DdsExtractor(mipmap, root);
 
     log.info("DDS Extractor will extract all files using mipmap {}.", mipmap);
 

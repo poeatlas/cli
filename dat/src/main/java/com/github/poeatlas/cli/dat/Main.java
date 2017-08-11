@@ -7,6 +7,9 @@ import com.github.poeatlas.cli.dat.domain.WorldAreas;
 import com.github.poeatlas.cli.dat.repository.AtlasNodeRepository;
 import com.github.poeatlas.cli.dat.repository.ItemVisualIdentityRepository;
 import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,7 @@ public class Main implements CommandLineRunner {
    * @throws IOException if file is invalid
    */
   public static void main(final String[] args) throws IOException {
+
     final StopWatch stopWatch = StopWatch.createStarted();
 
     if (log.isDebugEnabled()) {
@@ -66,18 +70,30 @@ public class Main implements CommandLineRunner {
       InstantiationException,
       IllegalAccessException,
       InvocationTargetException {
-    final File directory = new File(args[0]);
-    if (!directory.isDirectory()) {
-      throw new IOException(directory.getPath() + "is not a directory");
-    }
+    final OptionParser parser = new OptionParser();
 
-    // Field stringListField = Main.class.getDeclaredField("stringList");
-    // Field intListField = Main.class.getDeclaredField("integerList");
-    //
-    // log.info("str list: {}", stringListField.getType());
-    // log.info("int list: {}", intListField.getType());
-    //
-    // log.info(String.valueOf(stringListField.getType().equals(intListField.getType())));
+    // spec for json output filename
+    final OptionSpec<File> outputSpec = parser.accepts("output", "JSON output name")
+        .withRequiredArg()
+        .ofType(File.class)
+        .required();
+
+    // directory of dat files
+    final OptionSpec<File> dir = parser.nonOptions().ofType(File.class);
+
+    final OptionSet opt = parser.parse(args);
+
+    final File outputFile = opt.valueOf(outputSpec);
+    final File directory = opt.valueOf(dir);
+
+    // check spec output file exists in existing directory
+    if (!outputFile.getParentFile().isDirectory()) {
+      throw new IOException(outputFile.getParentFile() + "directory for output file does not exist");
+    }
+    // check directory for dat files is valid
+    if (!directory.isDirectory()) {
+      throw new IOException(directory.getPath() + "is not a directory.");
+    }
 
     final DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
     final DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory,
@@ -95,10 +111,7 @@ public class Main implements CommandLineRunner {
     final List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
 
     final ObjectMapper mapper = new ObjectMapper();
-    // AtlasNode node = atlasNodes.get(0);
-
-    final File jsonFile = new File("test.json");
-    mapper.writeValue(jsonFile,atlasNodes);
+    mapper.writeValue(outputFile,atlasNodes);
 
   }
 }

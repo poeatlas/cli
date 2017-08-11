@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  */
 public class NodeFilter {
   private static final Pattern ATLAS_MAP_PATTERN =
-      Pattern.compile("^/art/2ditems/maps/atlasmaps/[^/]+\\.dds$");
+      Pattern.compile("^/art/2ditems/maps/(?!^map)([a-z0-9]+\\.dds$)|atlasmaps/(notnamed/)?[^/]+\\.dds$");
   private static final Matcher ATLAS_MAP_MATCHER = ATLAS_MAP_PATTERN.matcher("");
 
   /**
@@ -26,7 +26,9 @@ public class NodeFilter {
            || "/textures/interface/2d".startsWith(nodePath)
            || "/art/2ditems/maps/atlasmaps".startsWith(nodePath)
            || "/art/2ditems/currency".startsWith(nodePath)
-           || "/data".startsWith(nodePath);
+           || "/data".startsWith(nodePath)
+           || "/art/2ditems/maps/atlasmaps/notnamed".startsWith(nodePath)
+           || "/art/2ditems/maps".startsWith(nodePath);
   }
 
   /**
