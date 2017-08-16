@@ -79,17 +79,17 @@ public class Main implements CommandLineRunner {
         .required();
 
     // directory of dat files
-    final OptionSpec<File> dir = parser.nonOptions().ofType(File.class);
-
     final OptionSet opt = parser.parse(args);
-
     final File outputFile = opt.valueOf(outputSpec);
-    final File directory = opt.valueOf(dir);
 
     // check spec output file exists in existing directory
     if (!outputFile.getParentFile().isDirectory()) {
-      throw new IOException(outputFile.getParentFile() + "directory for output file does not exist");
+      throw new IOException(outputFile.getParentFile() 
+                            + "directory for output file does not exist");
     }
+
+    final OptionSpec<File> dir = parser.nonOptions().ofType(File.class);
+    final File directory = opt.valueOf(dir);
     // check directory for dat files is valid
     if (!directory.isDirectory()) {
       throw new IOException(directory.getPath() + "is not a directory.");
