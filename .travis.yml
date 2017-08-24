@@ -3,10 +3,10 @@ jdk:
 - oraclejdk8
 os:
 - linux
-branches:
-  only:
-  - master
 script:
 - ./gradlew clean build
-after_success:
-- ./gradlew release -Prelease.useAutomaticVersion=true
+deploy:
+  provider: script
+  script: ./gradlew release -Prelease.useAutomaticVersion=true
+  on:
+    branch: master
