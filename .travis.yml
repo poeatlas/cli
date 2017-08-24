@@ -7,6 +7,9 @@ script:
 - ./gradlew clean build
 deploy:
   provider: script
-  script: git checkout $TRAVIS_BRANCH && ./gradlew release -Prelease.useAutomaticVersion=true
+  script: ./travis-release-script
   on:
     branch: master
+env:
+  global:
+    secure: f3eLC4GGENPQTLJjujJq1DMvMb+DXTPQfw2U1+QO9iv7HfazXcE7qz7htSjEMYXwQoHvfMK6SXEpWVlUOGWaiA2J8DStsHj6ijqpyifdM4wu649yhgSBNBghxlkHU9uySvnbDff6r7+6Lusvzv5h35M0zCn3VzWYFv6XrZj+kXVfPZ14M4UDwv4SrLd5hk+0Dhw7NshHiZR5JS286oPQNEoHEi6AyRR2xucBSjk/ULF1Fcb0+zjsy2YXEAiVkD+UFV9ToKzsmwU81e+RZSmx7x94zgL+eU0XRMalzYiRKpHgF3tWJkLwUInym6jrUNmtgmuUZGgg47RZ0KDT7K2UCs5SDxuC28726nT4lH6bSGJPNpEY+vEq8Cw9TnN0n4C4jBXxSezi9Vp769udznwpsw+3Z7A5RY6YOJdLkJGd5/65gjmqZ2zJQCvdk+yfI9dKQi2nZGO92XTgdMROi3GbOad0tTjk6WsGo35Ep53nMsYTcl2/lHni31eidfYV8Bl0K+xBCyrpiR+wGBd7SlL9In6mjTqs5VM+AajfytBB5Vz0n6tGJN7SGECd9SCwvPM18ixR67EvGCe6IYUqFBggVvWiMzhRMNRNYXwLauy6LbB3eZqcHvcbkCOFQW7YeaOXzg1byUB+gCKkqVRROI46m7jbG38dhPeOxabuPG5vzdM=
