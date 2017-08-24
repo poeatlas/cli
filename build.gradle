@@ -84,11 +84,12 @@ allprojects {
       }
     }
   }
-
 //  gradleLint.rules = ['all-dependency']
 }
 
 release {
+  preCommitText = '[skip ci]'
+
   git {
     requireBranch = ''
   }
