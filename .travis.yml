@@ -7,6 +7,6 @@ script:
 - ./gradlew clean build
 deploy:
   provider: script
-  script: ./gradlew release -Prelease.useAutomaticVersion=true
+  script: git checkout $TRAVIS_BRANCH && ./gradlew release -Prelease.useAutomaticVersion=true
   on:
     branch: master
