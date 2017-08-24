@@ -11,7 +11,6 @@ RUN apk add --update bash && rm -rf /var/cache/apk/* \
       -x test -x processTestResources \
       -x compileTestJava -x testClasses \
       -x distTar \
-  && mkdir -p /opt \
   && unzip -d /opt dat/build/distributions/*.zip \
   && unzip -d /opt dds/build/distributions/*.zip \
   && unzip -d /opt extract/build/distributions/*.zip \
