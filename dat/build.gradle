@@ -1,8 +1,11 @@
 apply plugin: 'org.springframework.boot'
+apply plugin: 'application'
+
+mainClassName = 'com.github.poeatlas.cli.dat.Main'
 
 buildscript {
   ext {
-    startClass = 'com.github.poeatlas.cli.dat.Main'
+//    startClass = 'com.github.poeatlas.cli.dat.Main'
   }
 
   repositories {
@@ -15,18 +18,18 @@ buildscript {
   }
 }
 
-jar {
-  baseName = 'dat-reader'
-  version = "${version}"
-
-  manifest {
-    attributes "Main-Class": "${startClass}"
-  }
-
-  from {
-    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-  }
-}
+//jar {
+//  baseName = 'dat-reader'
+//  version = "${version}"
+//
+////  manifest {
+////    attributes "Main-Class": "${mainClassName}"
+////  }
+////
+////  from {
+////    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+////  }
+//}
 
 dependencies {
   compile group: 'commons-io', name: 'commons-io', version: '2.5'

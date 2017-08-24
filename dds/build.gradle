@@ -1,7 +1,10 @@
+apply plugin: 'application'
+
+mainClassName = 'com.github.poeatlas.cli.dds.Main'
 
 buildscript {
   ext {
-    startClass = 'com.github.poeatlas.cli.dds.Main'
+//    startClass = 'com.github.poeatlas.cli.dds.Main'
   }
 
   repositories {
@@ -9,18 +12,18 @@ buildscript {
   }
 }
 
-jar {
-  baseName = 'dds-decoder'
-  version = "${version}"
-
-  manifest {
-    attributes "Main-Class": "${startClass}"
-  }
-
-  from {
-    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-  }
-}
+//jar {
+//  baseName = 'dds-decoder'
+//  version = "${version}"
+//
+//  manifest {
+//    attributes "Main-Class": "${startClass}"
+//  }
+//
+//  from {
+//    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+//  }
+//}
 
 dependencies {
   compile fileTree(dir: 'libs', include: '*.jar')
