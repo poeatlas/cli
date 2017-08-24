@@ -10,7 +10,7 @@ RUN apk add --update bash && rm -rf /var/cache/apk/* \
       -x pmdMain -x pmdTest \
       -x test -x processTestResources \
       -x compileTestJava -x testClasses \
-      -x distTar
+      -x distTar \
   && mkdir -p /opt \
   && unzip -d /opt dat/build/distributions/*.zip \
   && unzip -d /opt dds/build/distributions/*.zip \
