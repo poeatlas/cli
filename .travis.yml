@@ -8,3 +8,5 @@ branches:
   - master
 script:
 - ./gradlew clean build
+after_success:
+- ./gradlew release -Prelease.useAutomaticVersion=true
