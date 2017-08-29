@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by NothingSoup on 7/9/17.
@@ -70,6 +71,7 @@ public class Main implements CommandLineRunner {
       InstantiationException,
       IllegalAccessException,
       InvocationTargetException {
+
     final OptionParser parser = new OptionParser();
 
     // spec for json output filename
@@ -90,7 +92,10 @@ public class Main implements CommandLineRunner {
 
     final OptionSpec<File> dir = parser.nonOptions().ofType(File.class);
     final File directory = opt.valueOf(dir);
+
     // check directory for dat files is valid
+    Objects.requireNonNull(directory,"Input directory is null");
+
     if (!directory.isDirectory()) {
       throw new IOException(directory.getPath() + "is not a directory.");
     }
