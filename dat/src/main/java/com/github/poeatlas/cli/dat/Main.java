@@ -86,9 +86,18 @@ public class Main implements CommandLineRunner {
         .ofType(File.class)
         .required();
 
-    // directory of dat files
+    // parse arguments
     final OptionSet opt = parser.parse(args);
+
+    // directory of ouptut file
+    // opt = parser.parse(args);
+    final File inputDir = opt.valueOf(inputSpec);
     final File outputFile = opt.valueOf(outputSpec);
+
+    // check directory for dat files is valid
+    Objects.requireNonNull(inputDir,"Input directory is null");
+    // check directory for dat files is valid
+    Objects.requireNonNull(outputFile,"output file directory is null");
 
     // check spec output file exists in existing directory
     if (!outputFile.getParentFile().isDirectory()) {
@@ -96,20 +105,14 @@ public class Main implements CommandLineRunner {
                             + "directory for output file does not exist");
     }
 
-    // final OptionSpec<File> dir = parser.nonOptions().ofType(File.class);
-    final File inputDirectory = opt.valueOf(inputSpec);
-
-    // check directory for dat files is valid
-    Objects.requireNonNull(inputDirectory,"Input directory is null");
-
-    if (!inputDirectory.isDirectory()) {
-      throw new IOException(inputDirectory.getPath() + "is not a directory.");
+    if (!inputDir.isDirectory()) {
+      throw new IOException(inputDir.getPath() + "is not a directory.");
     }
 
-    final DatParser<WorldAreas> worldAreasParser = new DatParser<>(inputDirectory, WorldAreas.class);
-    final DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(inputDirectory,
+    final DatParser<WorldAreas> worldAreasParser = new DatParser<>(inputDir, WorldAreas.class);
+    final DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(inputDir,
         ItemVisualIdentity.class);
-    final DatParser<AtlasNode> atlasNodeParser = new DatParser<>(inputDirectory, AtlasNode.class);
+    final DatParser<AtlasNode> atlasNodeParser = new DatParser<>(inputDir, AtlasNode.class);
 
     final List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
     final List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
