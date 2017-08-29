@@ -74,6 +74,12 @@ public class Main implements CommandLineRunner {
 
     final OptionParser parser = new OptionParser();
 
+    // spec for json input filename
+    final OptionSpec<File> inputSpec = parser.accepts("input", "dat input directory")
+        .withRequiredArg()
+        .ofType(File.class)
+        .required();
+
     // spec for json output filename
     final OptionSpec<File> outputSpec = parser.accepts("output", "JSON output name")
         .withRequiredArg()
@@ -90,20 +96,20 @@ public class Main implements CommandLineRunner {
                             + "directory for output file does not exist");
     }
 
-    final OptionSpec<File> dir = parser.nonOptions().ofType(File.class);
-    final File directory = opt.valueOf(dir);
+    // final OptionSpec<File> dir = parser.nonOptions().ofType(File.class);
+    final File inputDirectory = opt.valueOf(inputSpec);
 
     // check directory for dat files is valid
-    Objects.requireNonNull(directory,"Input directory is null");
+    Objects.requireNonNull(inputDirectory,"Input directory is null");
 
-    if (!directory.isDirectory()) {
-      throw new IOException(directory.getPath() + "is not a directory.");
+    if (!inputDirectory.isDirectory()) {
+      throw new IOException(inputDirectory.getPath() + "is not a directory.");
     }
 
-    final DatParser<WorldAreas> worldAreasParser = new DatParser<>(directory, WorldAreas.class);
-    final DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(directory,
+    final DatParser<WorldAreas> worldAreasParser = new DatParser<>(inputDirectory, WorldAreas.class);
+    final DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(inputDirectory,
         ItemVisualIdentity.class);
-    final DatParser<AtlasNode> atlasNodeParser = new DatParser<>(directory, AtlasNode.class);
+    final DatParser<AtlasNode> atlasNodeParser = new DatParser<>(inputDirectory, AtlasNode.class);
 
     final List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
     final List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
