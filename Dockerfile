@@ -18,7 +18,7 @@ RUN apk add --update bash && rm -rf /var/cache/apk/* \
   && ln -s /opt/dat-*/bin/dat /usr/bin/dat \
   && ln -s /opt/dds-*/bin/dds /usr/bin/dds \
   && ln -s /opt/extract-*/bin/extract /usr/bin/extract \
-  && rm -rf /tmp
+  && rm -rf /tmp/*
 
 #/usr/bin
 WORKDIR /usr/src/app
