@@ -99,9 +99,10 @@ public class Main implements CommandLineRunner {
     // check directory for dat files is valid
     Objects.requireNonNull(outputFile,"output file directory is null");
 
+    final File parentOutputDir = outputFile.getParentFile();
     // check spec output file exists in existing directory
-    if (!outputFile.getParentFile().isDirectory()) {
-      throw new IOException(outputFile.getParentFile() 
+    if (!parentOutputDir.isDirectory() && !parentOutputDir.mkdirs()) {
+      throw new IOException(outputFile.getParentFile()
                             + "directory for output file does not exist");
     }
 
@@ -126,6 +127,7 @@ public class Main implements CommandLineRunner {
 
     final ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(outputFile,atlasNodes);
+
 
   }
 }
