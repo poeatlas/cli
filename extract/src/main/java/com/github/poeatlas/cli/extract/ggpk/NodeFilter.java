@@ -29,7 +29,8 @@ public class NodeFilter {
            || "/art/2ditems/currency".startsWith(nodePath)
            || "/data".startsWith(nodePath)
            || "/art/2ditems/maps/atlasmaps/notnamed".startsWith(nodePath)
-           || "/art/2ditems/maps".startsWith(nodePath);
+           || "/art/2ditems/maps".startsWith(nodePath)
+           || "/art/textures/interface/2d".startsWith(nodePath);
   }
 
   /**
@@ -64,6 +65,8 @@ public class NodeFilter {
            || "/art/2ditems/currency/sealwhite.dds".equals(filePath)
            || "/art/2ditems/currency/sealyellow.dds".equals(filePath)
            || "/art/2ditems/currency/sealred.dds".equals(filePath)
+           || "/art/textures/interface/2d/2dart_uiimages_ingame_3.dds".equals(filePath)
+           || "/art/textures/interface/2d/2dart_uiimages_ingame_6.dds".equals(filePath)
            || "/data/atlasnode.dat".equals(filePath)
            || "/data/worldareas.dat".equals(filePath)
            || "/data/baseitemtypes.dat".equals(filePath)

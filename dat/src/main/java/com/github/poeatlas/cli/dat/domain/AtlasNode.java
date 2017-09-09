@@ -30,6 +30,8 @@ import javax.persistence.Transient;
 @ToString
 @Table(name = "atlas_node")
 public class AtlasNode {
+  private static final int TIER_MAGIC_NUMBER = 67;
+
   @Id
   private int id;
 
@@ -104,6 +106,32 @@ public class AtlasNode {
   public String getWorldAreasName() {
     return getWorldAreas().getName();
   }
+
+  /**
+   * get monster level of map.
+   * @return level of map
+   */
+  @JsonProperty("world_areas_level")
+  public int getWorldAreasLevel() {
+    return getWorldAreas().getAreaLevel();
+  }
+
+  /**
+   * get tier level of map.
+   * @return tier of map as int
+   */
+  @JsonProperty("world_areas_tier")
+  public int getWorldAreasTier() {
+    return getWorldAreas().getAreaLevel() - TIER_MAGIC_NUMBER;
+  }
+  // /**
+  //  * get name of map.
+  //  * @return name of map
+  //  */
+  // @JsonProperty("world_areas_key")
+  // public String getWorldAreasKey() {
+  //   return getWorldAreas().getAreaKey();
+  // }
 
   /**
    * get dds file path for regular map.

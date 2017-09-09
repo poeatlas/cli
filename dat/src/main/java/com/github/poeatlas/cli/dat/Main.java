@@ -123,7 +123,20 @@ public class Main implements CommandLineRunner {
     itemVisualIdentityRepo.save(itemVisualIdentityList);
     atlasNodeRepo.save(atlasNodeList);
 
+    // Map<String, WorldAreas> tierMap = new HashMap<>();
+    // final List<WorldAreas> worldAreasTierList = worldAreasRepo.getTierList();
+    //
+    // for(WorldAreas worldArea : worldAreasTierList) {
+    //   tierMap.put(worldArea.getName(),worldArea);
+    // }
+
     final List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
+
+    // for(AtlasNode aNode : atlasNodes) {
+    //   aNode.setWorldAreas(tierMap.get(aNode.getWorldAreasName()));
+    //   log.info("new area key: {}", tierMap.get(aNode.getWorldAreasName()).getAreaKey());
+    //   log.info("new area name: {}", tierMap.get(aNode.getWorldAreasName()).getName());
+    // }
 
     final ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(outputFile,atlasNodes);

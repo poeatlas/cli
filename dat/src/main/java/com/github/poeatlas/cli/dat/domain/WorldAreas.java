@@ -4,10 +4,15 @@ import lombok.Data;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 /**
  * Created by NothingSoup on 7/13/17.
@@ -29,21 +34,25 @@ public class WorldAreas {
   @Column(nullable = false)
   private String name;
 
+  @Transient
   // @Column(nullable = false)
-  // private int act;
-  //
+  private int act;
+
+  @Transient
   // @Column(nullable = false)
-  // private boolean isTown;
-  //
+  private boolean town;
+
+  @Transient
   // @Column(nullable = false)
-  // private boolean hasWaypoint;
-  //
-  // @Transient
-  // private List<Integer> connectedWorldAreasKeys;
-  //
-  // @Column(nullable = false)
-  // private int areaLevel;
-  //
+  private boolean hasWaypoint;
+
+  @Transient
+  @OneToMany(mappedBy = "worldAreas", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  private List<ConnectedWorldAreas> connectedWorldAreasKeys;
+
+  @Column(nullable = false)
+  private int areaLevel;
+
   // @Column(nullable = false)
   // private boolean hasDoodads;
   //

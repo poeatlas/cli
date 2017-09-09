@@ -43,11 +43,12 @@ public class StringAbstractDecoder extends AbstractDecoder<String> {
     }
 
     // empty string; end it
-    if (beginOffset == endOffset) {
+    if (beginOffset == endOffset || endOffset == 0) {
       return "";
     }
 
     final int valueLength = endOffset - beginOffset;
+
     // convert value into string + remove terminating char
     final char[] nameBuf = new char[valueLength / 2];
 
