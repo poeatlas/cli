@@ -268,3 +268,4 @@ Session.vim
 tags
 
 !/dds/libs/dds-1.0.0.jar
+!/dds/libs/ddsreader.jar
