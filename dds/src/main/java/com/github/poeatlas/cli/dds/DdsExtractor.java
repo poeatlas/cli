@@ -127,8 +127,6 @@ public class DdsExtractor {
       return;
     }
 
-
-
     log.debug("decSizeBytes: {}", decSizeBytes);
     // converts 4 big endian ordered bytes to a little endian int
     // have to & 0xFF to eliminate the conversion from byte to int
