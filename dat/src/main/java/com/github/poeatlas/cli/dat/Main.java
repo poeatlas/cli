@@ -1,5 +1,6 @@
 package com.github.poeatlas.cli.dat;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.poeatlas.cli.dat.domain.AtlasNode;
 import com.github.poeatlas.cli.dat.domain.ItemVisualIdentity;
@@ -139,6 +140,7 @@ public class Main implements CommandLineRunner {
     // }
 
     final ObjectMapper mapper = new ObjectMapper();
+    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     mapper.writeValue(outputFile,atlasNodes);
 
 

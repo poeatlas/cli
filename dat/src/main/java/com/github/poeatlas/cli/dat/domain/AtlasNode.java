@@ -30,7 +30,7 @@ import javax.persistence.Transient;
 @ToString
 @Table(name = "atlas_node")
 public class AtlasNode {
-  private static final int TIER_MAGIC_NUMBER = 67;
+  // private static final int TIER_MAGIC_NUMBER = 67;
 
   @Id
   private int id;
@@ -81,7 +81,7 @@ public class AtlasNode {
    * get connected atlas node ids for this atlas node.
    * @return list of atlas node ids
    */
-  @JsonProperty("connected_map_ids")
+  @JsonProperty("connectedMapIds")
   public List<Integer> getConnectedMapIds() {
     final List<ConnectedAtlasNode> connectedAtlasNodeList = getAtlasNodeKeys();
 
@@ -102,7 +102,7 @@ public class AtlasNode {
    * get name of map.
    * @return name of map
    */
-  @JsonProperty("world_areas_name")
+  @JsonProperty("worldAreasName")
   public String getWorldAreasName() {
     return getWorldAreas().getName();
   }
@@ -111,33 +111,25 @@ public class AtlasNode {
    * get monster level of map.
    * @return level of map
    */
-  @JsonProperty("world_areas_level")
+  @JsonProperty("worldAreasLevel")
   public int getWorldAreasLevel() {
     return getWorldAreas().getAreaLevel();
   }
 
-  /**
-   * get tier level of map.
-   * @return tier of map as int
-   */
-  @JsonProperty("world_areas_tier")
-  public int getWorldAreasTier() {
-    return getWorldAreas().getAreaLevel() - TIER_MAGIC_NUMBER;
-  }
   // /**
-  //  * get name of map.
-  //  * @return name of map
+  //  * get tier level of map.
+  //  * @return tier of map as int
   //  */
-  // @JsonProperty("world_areas_key")
-  // public String getWorldAreasKey() {
-  //   return getWorldAreas().getAreaKey();
+  // @JsonProperty("world_areas_tier")
+  // public int getWorldAreasTier() {
+  //   return getWorldAreas().getAreaLevel() - TIER_MAGIC_NUMBER;
   // }
 
   /**
    * get dds file path for regular map.
    * @return dds file path string
    */
-  @JsonProperty("icon_path")
+  @JsonProperty("iconPath")
   public String getItemIconPath() {
     String iconPath = getDefaultItemVisualIdentityKey().getDdsFile();
     iconPath = iconPath.replaceFirst("\\.dds$", "");
@@ -150,7 +142,7 @@ public class AtlasNode {
    * get dds file path for shaped map.
    * @return dds file path string
    */
-  @JsonProperty("shaped_icon_path")
+  @JsonProperty("shapedIconPath")
   public String getShapedItemDds() {
     final ItemVisualIdentity key = getDefaultShapedItemVisualIdentityKey();
 
@@ -164,11 +156,4 @@ public class AtlasNode {
 
     return iconPath;
   }
-  // @Spec(value = StringAbstractDecoder.class, skip = true)
-  // @Transient
-  // private String flavourText;
-  //
-  // @Spec(BooleanAbstractDecoder.class)
-  // @Column(nullable = false)
-  // private boolean sextantable;
 }
