@@ -1,5 +1,6 @@
 package com.github.poeatlas.cli.dat;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,8 +12,10 @@ public class AtlasData {
 
   private int id;
 
+  @JsonProperty("x")
   private float posX;
 
+  @JsonProperty("y")
   private float posY;
 
   private List<Integer> connectedMapIds;

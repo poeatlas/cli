@@ -1,0 +1,51 @@
+#version: '3'
+#services:
+#  mysql:
+#    image: mysql
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=root
+#      - MYSQL_DATABASE=poeatlas
+#    networks:
+#      - backend
+#
+#  cli:
+#    image: poeatlas/cli
+#    environment:
+#      - JAVA_OPTS="-Dspring.datasource.url=jdbc:mysql://mysql:3306/poeatlas?useSSL=false"
+#    depends_on:
+#      - mysql
+#    networks:
+#      - backend
+#    command: ["dat"]
+#
+#networks:
+#  backend:
+
+version: '3'
+
+services:
+   mysql:
+     image: mysql
+     volumes:
+       - db_data:/var/lib/mysql
+     restart: always
+     environment:
+       MYSQL_ROOT_PASSWORD: root
+       MYSQL_DATABASE: poeatlas
+       MYSQL_USER: root1
+       MYSQL_PASSWORD: root1
+       MYSQL_ROOT_HOST: "*"
+
+   cli:
+     depends_on:
+       - mysql
+     image: poeatlas/cli
+     ports:
+       - "8000:80"
+     restart: always
+     environment:
+       JAVA_OPTS: "-Dspring.datasource.url=\"jdbc:mysql://mysql:3306/poeatlas?useSSL=false\""
+     command: ["dat"]
+
+volumes:
+    db_data:
