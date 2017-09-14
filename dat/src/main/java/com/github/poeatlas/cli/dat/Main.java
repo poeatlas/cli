@@ -3,9 +3,11 @@ package com.github.poeatlas.cli.dat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.poeatlas.cli.dat.domain.AtlasNode;
+import com.github.poeatlas.cli.dat.domain.AtlasQuestItems;
 import com.github.poeatlas.cli.dat.domain.ItemVisualIdentity;
 import com.github.poeatlas.cli.dat.domain.WorldAreas;
 import com.github.poeatlas.cli.dat.repository.AtlasNodeRepository;
+import com.github.poeatlas.cli.dat.repository.AtlasQuestItemsRepository;
 import com.github.poeatlas.cli.dat.repository.ItemVisualIdentityRepository;
 import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
 import joptsimple.OptionParser;
@@ -21,8 +23,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -40,6 +45,9 @@ public class Main implements CommandLineRunner {
 
   @Autowired
   private ItemVisualIdentityRepository itemVisualIdentityRepo;
+
+  @Autowired
+  private AtlasQuestItemsRepository atlasQuestItemsRepo;
 
   /**
    * reads dat files.
@@ -112,36 +120,57 @@ public class Main implements CommandLineRunner {
     }
 
     final DatParser<WorldAreas> worldAreasParser = new DatParser<>(inputDir, WorldAreas.class);
+    final DatParser<AtlasQuestItems> atlasQuestItemsParser = new DatParser<>(inputDir,
+        AtlasQuestItems.class);
     final DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(inputDir,
         ItemVisualIdentity.class);
     final DatParser<AtlasNode> atlasNodeParser = new DatParser<>(inputDir, AtlasNode.class);
 
     final List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
+    final List<AtlasQuestItems> atlasQuestItemsList = atlasQuestItemsParser.parse();
     final List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
     final List<AtlasNode> atlasNodeList = atlasNodeParser.parse();
 
     worldAreasRepo.save(worldAreasRecList);
+    atlasQuestItemsRepo.save(atlasQuestItemsList);
     itemVisualIdentityRepo.save(itemVisualIdentityList);
     atlasNodeRepo.save(atlasNodeList);
 
-    // Map<String, WorldAreas> tierMap = new HashMap<>();
-    // final List<WorldAreas> worldAreasTierList = worldAreasRepo.getTierList();
-    //
-    // for(WorldAreas worldArea : worldAreasTierList) {
-    //   tierMap.put(worldArea.getName(),worldArea);
-    // }
-
+    final List<AtlasQuestItems> shaperMapsList = atlasQuestItemsRepo.fetchShaperMaps();
     final List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
+    // contains all relevant atlas data to be written into JSON file
+    List<AtlasData> atlasDataList = new ArrayList<>();
 
-    // for(AtlasNode aNode : atlasNodes) {
-    //   aNode.setWorldAreas(tierMap.get(aNode.getWorldAreasName()));
-    //   log.info("new area key: {}", tierMap.get(aNode.getWorldAreasName()).getAreaKey());
-    //   log.info("new area name: {}", tierMap.get(aNode.getWorldAreasName()).getName());
-    // }
+    Map<Long, Integer> shaperOrbMap = new HashMap<>();
+    for(AtlasQuestItems item : shaperMapsList ) {
+      shaperOrbMap.put(item.getWorldAreas().getId(),item.getMapTier());
+    }
+
+    for(AtlasNode node : atlasNodes) {
+      // create AtlasData object with relevant data
+      final AtlasData.AtlasDataBuilder builder = AtlasData.builder()
+          .id(node.getId())
+          .x(node.getPosX())
+          .y(node.getPosY())
+          .connectedMapIds(node.getConnectedMapIds())
+          .worldAreasName(node.getWorldAreasName())
+          .worldAreasLevel(node.getWorldAreasLevel())
+          .iconPath(node.getItemIconPath())
+          .shapedIconPath(node.getShapedItemIconPath());
+      // check if curr map contains shaper orb
+      if( shaperOrbMap.containsKey(node.getWorldAreas().getId()) ) {
+        builder.shaperOrb(shaperOrbMap.get(node.getWorldAreas().getId()));
+      } else {
+        builder.shaperOrb(null);
+      }
+
+      // add to list to write to JSON
+      atlasDataList.add(builder.build());
+    }
 
     final ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    mapper.writeValue(outputFile,atlasNodes);
+    mapper.writeValue(outputFile, atlasDataList);
 
 
   }

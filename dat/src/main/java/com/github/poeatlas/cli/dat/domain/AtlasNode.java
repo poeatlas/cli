@@ -98,6 +98,10 @@ public class AtlasNode {
     return idList;
   }
 
+  public boolean getShaperFlag() {
+
+    return false;
+  }
   /**
    * get name of map.
    * @return name of map
@@ -143,7 +147,7 @@ public class AtlasNode {
    * @return dds file path string
    */
   @JsonProperty("shapedIconPath")
-  public String getShapedItemDds() {
+  public String getShapedItemIconPath() {
     final ItemVisualIdentity key = getDefaultShapedItemVisualIdentityKey();
 
     if (key == null) {
