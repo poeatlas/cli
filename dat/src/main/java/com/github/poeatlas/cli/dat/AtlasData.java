@@ -11,9 +11,9 @@ public class AtlasData {
 
   private int id;
 
-  private float x;
+  private float posX;
 
-  private float y;
+  private float posY;
 
   private List<Integer> connectedMapIds;
 

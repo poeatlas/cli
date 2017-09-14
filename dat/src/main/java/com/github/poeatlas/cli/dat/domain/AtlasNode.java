@@ -98,10 +98,6 @@ public class AtlasNode {
     return idList;
   }
 
-  public boolean getShaperFlag() {
-
-    return false;
-  }
   /**
    * get name of map.
    * @return name of map

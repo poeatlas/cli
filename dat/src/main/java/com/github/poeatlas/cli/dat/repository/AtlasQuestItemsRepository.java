@@ -9,5 +9,5 @@ import java.util.List;
 public interface AtlasQuestItemsRepository extends JpaRepository<AtlasQuestItems, Integer> {
 
   @Query("SELECT a FROM AtlasQuestItems a")
-  public List<AtlasQuestItems> fetchShaperMaps();
+  List<AtlasQuestItems> fetchShaperMaps();
 }

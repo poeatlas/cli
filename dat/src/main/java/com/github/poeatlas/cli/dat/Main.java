@@ -139,26 +139,26 @@ public class Main implements CommandLineRunner {
     final List<AtlasQuestItems> shaperMapsList = atlasQuestItemsRepo.fetchShaperMaps();
     final List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
     // contains all relevant atlas data to be written into JSON file
-    List<AtlasData> atlasDataList = new ArrayList<>();
+    final List<AtlasData> atlasDataList = new ArrayList<>();
 
-    Map<Long, Integer> shaperOrbMap = new HashMap<>();
-    for(AtlasQuestItems item : shaperMapsList ) {
+    final Map<Long, Integer> shaperOrbMap = new HashMap<>();
+    for (final AtlasQuestItems item : shaperMapsList ) {
       shaperOrbMap.put(item.getWorldAreas().getId(),item.getMapTier());
     }
 
-    for(AtlasNode node : atlasNodes) {
+    for (final AtlasNode node : atlasNodes) {
       // create AtlasData object with relevant data
       final AtlasData.AtlasDataBuilder builder = AtlasData.builder()
           .id(node.getId())
-          .x(node.getPosX())
-          .y(node.getPosY())
+          .posX(node.getPosX())
+          .posY(node.getPosY())
           .connectedMapIds(node.getConnectedMapIds())
           .worldAreasName(node.getWorldAreasName())
           .worldAreasLevel(node.getWorldAreasLevel())
           .iconPath(node.getItemIconPath())
           .shapedIconPath(node.getShapedItemIconPath());
       // check if curr map contains shaper orb
-      if( shaperOrbMap.containsKey(node.getWorldAreas().getId()) ) {
+      if (shaperOrbMap.containsKey(node.getWorldAreas().getId())) {
         builder.shaperOrb(shaperOrbMap.get(node.getWorldAreas().getId()));
       } else {
         builder.shaperOrb(null);
