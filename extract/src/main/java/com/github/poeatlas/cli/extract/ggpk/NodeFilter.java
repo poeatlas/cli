@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 public class NodeFilter {
   private static final Pattern ATLAS_MAP_PATTERN =
       Pattern.compile(
-        "^/art/2ditems/maps/(?!^map)([a-z0-9]+\\.dds$)|atlasmaps/(notnamed/)?[^/]+\\.dds$");
+        "^/art/2ditems/maps/[a-z0-9/_]+\\.dds$");
   private static final Matcher ATLAS_MAP_MATCHER = ATLAS_MAP_PATTERN.matcher("");
 
   /**
