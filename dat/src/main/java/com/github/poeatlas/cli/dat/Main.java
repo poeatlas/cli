@@ -6,10 +6,12 @@ import com.github.poeatlas.cli.dat.domain.AtlasNode;
 import com.github.poeatlas.cli.dat.domain.AtlasQuestItems;
 import com.github.poeatlas.cli.dat.domain.ItemVisualIdentity;
 import com.github.poeatlas.cli.dat.domain.WorldAreas;
+import com.github.poeatlas.cli.dat.json.MapJson;
 import com.github.poeatlas.cli.dat.repository.AtlasNodeRepository;
 import com.github.poeatlas.cli.dat.repository.AtlasQuestItemsRepository;
 import com.github.poeatlas.cli.dat.repository.ItemVisualIdentityRepository;
 import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
+import com.github.poeatlas.cli.dat.util.MapUtil;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
@@ -37,6 +39,9 @@ import java.util.Objects;
 @Slf4j
 @SuppressWarnings("PMD.UseUtilityClass")
 public class Main implements CommandLineRunner {
+  // give it .0001 of precision
+  private static final double SEXTANT_MAX_DISTANCE = 55.0001;
+
   @Autowired
   private AtlasNodeRepository atlasNodeRepo;
 
@@ -104,11 +109,11 @@ public class Main implements CommandLineRunner {
     final File outputFile = opt.valueOf(outputSpec);
 
     // check directory for dat files is valid
-    Objects.requireNonNull(inputDir,"Input directory is null");
+    Objects.requireNonNull(inputDir, "Input directory is null");
     // check directory for dat files is valid
-    Objects.requireNonNull(outputFile,"output file directory is null");
+    Objects.requireNonNull(outputFile, "output file directory is null");
 
-    final File parentOutputDir = outputFile.getParentFile();
+    final File parentOutputDir = outputFile.getAbsoluteFile().getParentFile();
     // check spec output file exists in existing directory
     if (!parentOutputDir.isDirectory() && !parentOutputDir.mkdirs()) {
       throw new IOException(outputFile.getParentFile()
@@ -119,6 +124,14 @@ public class Main implements CommandLineRunner {
       throw new IOException(inputDir.getPath() + "is not a directory.");
     }
 
+    parseDats(inputDir, outputFile);
+  }
+
+  private void parseDats(final File inputDir, final File outputFile)
+      throws IOException,
+      InvocationTargetException,
+      InstantiationException,
+      IllegalAccessException {
     final DatParser<WorldAreas> worldAreasParser = new DatParser<>(inputDir, WorldAreas.class);
     final DatParser<AtlasQuestItems> atlasQuestItemsParser = new DatParser<>(inputDir,
         AtlasQuestItems.class);
@@ -139,39 +152,67 @@ public class Main implements CommandLineRunner {
     final List<AtlasQuestItems> shaperMapsList = atlasQuestItemsRepo.fetchShaperMaps();
     final List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
     // contains all relevant atlas data to be written into JSON file
-    final List<AtlasData> atlasDataList = new ArrayList<>();
+    final List<MapJson> atlasJson = new ArrayList<>();
 
     final Map<Long, Integer> shaperOrbMap = new HashMap<>();
-    for (final AtlasQuestItems item : shaperMapsList ) {
-      shaperOrbMap.put(item.getWorldAreas().getId(),item.getMapTier());
+    for (final AtlasQuestItems item : shaperMapsList) {
+      shaperOrbMap.put(item.getWorldAreas().getId(), item.getMapTier());
     }
 
     for (final AtlasNode node : atlasNodes) {
+      final WorldAreas worldAreas = node.getWorldAreas();
+
       // create AtlasData object with relevant data
-      final AtlasData.AtlasDataBuilder builder = AtlasData.builder()
+      final MapJson.MapJsonBuilder builder = MapJson.builder()
           .id(node.getId())
-          .posX(node.getPosX())
-          .posY(node.getPosY())
-          .connectedMapIds(node.getConnectedMapIds())
-          .worldAreasName(node.getWorldAreasName())
-          .worldAreasLevel(node.getWorldAreasLevel())
-          .iconPath(node.getItemIconPath())
-          .shapedIconPath(node.getShapedItemIconPath());
+          .x(node.getX())
+          .y(node.getY())
+          .connected(MapUtil.getConnectedMapIds(node.getAtlasNodeKeys()))
+          .name(worldAreas.getName())
+          .level(worldAreas.getAreaLevel())
+          .iconPath(MapUtil.getIconPath(node.getDefaultItemVisualIdentityKey()))
+          .shapedIconPath(MapUtil.getIconPath(node.getDefaultShapedItemVisualIdentityKey()));
+
       // check if curr map contains shaper orb
       if (shaperOrbMap.containsKey(node.getWorldAreas().getId())) {
-        builder.shaperOrb(shaperOrbMap.get(node.getWorldAreas().getId()));
-      } else {
-        builder.shaperOrb(null);
+        builder.shaperOrbTier(shaperOrbMap.get(node.getWorldAreas().getId()));
       }
 
       // add to list to write to JSON
-      atlasDataList.add(builder.build());
+      atlasJson.add(builder.build());
     }
+
+    allocateSextants(atlasJson);
 
     final ObjectMapper mapper = new ObjectMapper();
     mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    mapper.writeValue(outputFile, atlasDataList);
+    mapper.writeValue(outputFile, atlasJson);
+  }
 
+  @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+  private void allocateSextants(final List<MapJson> atlas) {
+    for (final MapJson map : atlas) {
+      final List<Integer> sextants = new ArrayList<>();
+      final float x = map.getX();
+      final float y = map.getY();
 
+      for (final MapJson otherMap : atlas) {
+        if (otherMap.equals(map)) {
+          continue;
+        }
+
+        final float otherX = otherMap.getX();
+        final float otherY = otherMap.getY();
+        final double distance = Math.hypot(x - otherX, y - otherY);
+
+        if (distance < SEXTANT_MAX_DISTANCE) {
+          sextants.add(otherMap.getId());
+        }
+      }
+
+      if (!sextants.isEmpty()) {
+        map.setSextant(sextants);
+      }
+    }
   }
 }

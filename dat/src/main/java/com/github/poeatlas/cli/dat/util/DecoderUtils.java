@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Slf4j
 public final class DecoderUtils {
-  private static final Set<? extends Number> nullValues;
+  private static final Set<? extends Number> NULL_VALUES;
 
   private DecoderUtils() {
     // do not create
@@ -22,10 +22,10 @@ public final class DecoderUtils {
     hashSet.add(new BigInteger("FFFFFFFFFFFFFFFF", 16).longValue()); // null unsigned long
     hashSet.add(new BigInteger("FEFEFEFEFEFEFEFE", 16).longValue()); // null long
     hashSet.add(new BigInteger("EFEFEFEFEFEFEFEF", 16).doubleValue()); // null double
-    nullValues = (Set<? extends Number>) hashSet;
+    NULL_VALUES = (Set<? extends Number>) hashSet;
   }
 
   public static boolean isNull(final Number value) {
-    return nullValues.contains(value);
+    return NULL_VALUES.contains(value);
   }
 }

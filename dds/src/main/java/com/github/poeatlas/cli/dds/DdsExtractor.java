@@ -36,6 +36,7 @@ public class DdsExtractor {
 
   /**
    * extracts dds file.
+   *
    * @param inputFile file to extract
    * @throws IOException file invalid
    */
@@ -103,6 +104,7 @@ public class DdsExtractor {
   //   ImageIO.write(image, PNG, outputFile);
   //   log.info("{} ({}x{}) created", outputFile.getPath(), image.getWidth(), image.getHeight());
   // }
+
   /**
    * extracts the dds files using given mipmap.
    *
@@ -121,7 +123,7 @@ public class DdsExtractor {
       final String beginning = new String(decSizeBytes, StandardCharsets.UTF_8);
       final String ending = new String(remainingBytes, StandardCharsets.UTF_8);
 
-      final File extractFile = new File(getRoot(),beginning.substring(1) + ending);
+      final File extractFile = new File(getRoot(), beginning.substring(1) + ending);
       log.info("{} references {}", inputFile.getPath(), extractFile.getPath());
       extract(extractFile, outputFile);
       return;
@@ -147,7 +149,7 @@ public class DdsExtractor {
     // @Cleanup final ByteArrayInputStream bais = new ByteArrayInputStream(decodedBytes);
     // @Cleanup final ImageInputStream iis = ImageIO.createImageInputStream(bais);
 
-    final int[] pixels = DDSReader.read(decodedBytes, DDSReader.ARGB,getMipmap());
+    final int[] pixels = DDSReader.read(decodedBytes, DDSReader.ARGB, getMipmap());
     final int width = DDSReader.getWidth(decodedBytes) / (int) Math.pow(2, getMipmap());
     final int height = DDSReader.getHeight(decodedBytes) / (int) Math.pow(2, getMipmap());
 
@@ -157,7 +159,7 @@ public class DdsExtractor {
     // imageReader.setInput(iis);
 
     final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-    image.setRGB(0,0, width,height,pixels,0,width);
+    image.setRGB(0, 0, width, height, pixels, 0, width);
 
     ImageIO.write(image, PNG, outputFile);
     log.info("{} ({}x{}) created", outputFile.getPath(), image.getWidth(), image.getHeight());

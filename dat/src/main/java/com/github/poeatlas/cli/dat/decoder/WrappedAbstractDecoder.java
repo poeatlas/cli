@@ -73,7 +73,7 @@ public class WrappedAbstractDecoder extends AbstractDecoder<Object> {
 
 
     try {
-      final Number decodedValue = (Number) decoder.decode(id,buf);
+      final Number decodedValue = (Number) decoder.decode(id, buf);
       if (decodedValue == null) {
         return null;
       }

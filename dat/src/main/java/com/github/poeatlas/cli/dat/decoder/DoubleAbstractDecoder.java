@@ -25,7 +25,7 @@ public class DoubleAbstractDecoder extends AbstractDecoder<Double> {
     if (DecoderUtils.isNull(value)) {
       return null;
     }
-    return value ;
+    return value;
   }
 
   @Override
