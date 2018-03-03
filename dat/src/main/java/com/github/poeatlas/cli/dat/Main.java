@@ -3,12 +3,10 @@ package com.github.poeatlas.cli.dat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.poeatlas.cli.dat.domain.AtlasNode;
-import com.github.poeatlas.cli.dat.domain.AtlasQuestItems;
 import com.github.poeatlas.cli.dat.domain.ItemVisualIdentity;
 import com.github.poeatlas.cli.dat.domain.WorldAreas;
 import com.github.poeatlas.cli.dat.json.MapJson;
 import com.github.poeatlas.cli.dat.repository.AtlasNodeRepository;
-import com.github.poeatlas.cli.dat.repository.AtlasQuestItemsRepository;
 import com.github.poeatlas.cli.dat.repository.ItemVisualIdentityRepository;
 import com.github.poeatlas.cli.dat.repository.WorldAreasRepository;
 import com.github.poeatlas.cli.dat.util.MapUtil;
@@ -27,9 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -51,8 +47,8 @@ public class Main implements CommandLineRunner {
   @Autowired
   private ItemVisualIdentityRepository itemVisualIdentityRepo;
 
-  @Autowired
-  private AtlasQuestItemsRepository atlasQuestItemsRepo;
+  // @Autowired
+  // private AtlasQuestItemsRepository atlasQuestItemsRepo;
 
   /**
    * reads dat files.
@@ -133,31 +129,23 @@ public class Main implements CommandLineRunner {
       InstantiationException,
       IllegalAccessException {
     final DatParser<WorldAreas> worldAreasParser = new DatParser<>(inputDir, WorldAreas.class);
-    final DatParser<AtlasQuestItems> atlasQuestItemsParser = new DatParser<>(inputDir,
-        AtlasQuestItems.class);
     final DatParser<ItemVisualIdentity> itemVisualIdentityParser = new DatParser<>(inputDir,
         ItemVisualIdentity.class);
     final DatParser<AtlasNode> atlasNodeParser = new DatParser<>(inputDir, AtlasNode.class);
 
     final List<WorldAreas> worldAreasRecList = worldAreasParser.parse();
-    final List<AtlasQuestItems> atlasQuestItemsList = atlasQuestItemsParser.parse();
     final List<ItemVisualIdentity> itemVisualIdentityList = itemVisualIdentityParser.parse();
     final List<AtlasNode> atlasNodeList = atlasNodeParser.parse();
 
     worldAreasRepo.save(worldAreasRecList);
-    atlasQuestItemsRepo.save(atlasQuestItemsList);
+    // atlasQuestItemsRepo.save(atlasQuestItemsList);
     itemVisualIdentityRepo.save(itemVisualIdentityList);
     atlasNodeRepo.save(atlasNodeList);
 
-    final List<AtlasQuestItems> shaperMapsList = atlasQuestItemsRepo.fetchShaperMaps();
+    // final List<AtlasQuestItems> shaperMapsList = atlasQuestItemsRepo.fetchShaperMaps();
     final List<AtlasNode> atlasNodes = atlasNodeRepo.findAll();
     // contains all relevant atlas data to be written into JSON file
     final List<MapJson> atlasJson = new ArrayList<>();
-
-    final Map<Long, Integer> shaperOrbMap = new HashMap<>();
-    for (final AtlasQuestItems item : shaperMapsList) {
-      shaperOrbMap.put(item.getWorldAreas().getId(), item.getMapTier());
-    }
 
     for (final AtlasNode node : atlasNodes) {
       final WorldAreas worldAreas = node.getWorldAreas();
@@ -171,12 +159,9 @@ public class Main implements CommandLineRunner {
           .name(worldAreas.getName())
           .level(worldAreas.getAreaLevel())
           .iconPath(MapUtil.getIconPath(node.getDefaultItemVisualIdentityKey()))
-          .shapedIconPath(MapUtil.getIconPath(node.getDefaultShapedItemVisualIdentityKey()));
+          .isUnique(node.getDefaultItemVisualIdentityKey().getItemKey()
+                        .toLowerCase().indexOf("unique") != -1);
 
-      // check if curr map contains shaper orb
-      if (shaperOrbMap.containsKey(node.getWorldAreas().getId())) {
-        builder.shaperOrbTier(shaperOrbMap.get(node.getWorldAreas().getId()));
-      }
 
       // add to list to write to JSON
       atlasJson.add(builder.build());

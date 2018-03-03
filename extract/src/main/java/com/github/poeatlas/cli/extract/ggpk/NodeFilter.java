@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
 public class NodeFilter {
   private static final Pattern ATLAS_MAP_PATTERN =
       Pattern.compile(
-        "^/art/2ditems/maps/[a-z0-9/_]+\\.dds$");
+        "^/art/2ditems/maps/(.*)?/?[a-z0-9/_]+\\.dds$");
+
   private static final Matcher ATLAS_MAP_MATCHER = ATLAS_MAP_PATTERN.matcher("");
 
   /**
@@ -26,6 +27,8 @@ public class NodeFilter {
     return "/art/2dart/atlas".startsWith(nodePath)
            || "/textures/interface/2d".startsWith(nodePath)
            || "/art/2ditems/maps/atlasmaps".startsWith(nodePath)
+           || "/art/2ditems/maps/atlas2maps".startsWith(nodePath)
+           || "/art/2ditems/maps/atlas2maps/new".startsWith(nodePath)
            || "/art/2ditems/currency".startsWith(nodePath)
            || "/data".startsWith(nodePath)
            || "/art/2ditems/maps/atlasmaps/notnamed".startsWith(nodePath)

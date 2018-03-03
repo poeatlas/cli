@@ -71,6 +71,10 @@ public abstract class AbstractDecoder<T> {
 
   public abstract int getColumnLength();
 
+  public boolean isNull(final Number value) {
+    return false;
+  }
+
   /**
    * gets decoder based on class.
    * @param field field to decode

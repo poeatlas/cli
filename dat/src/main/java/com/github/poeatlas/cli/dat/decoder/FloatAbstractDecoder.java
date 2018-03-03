@@ -1,13 +1,13 @@
 package com.github.poeatlas.cli.dat.decoder;
 
 import com.github.poeatlas.cli.dat.DatMeta;
-import com.github.poeatlas.cli.dat.util.DecoderUtils;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 public class FloatAbstractDecoder extends AbstractDecoder<Float> {
   private static final int COLUMN_LENGTH = 4;
+  // private static final Number NULL_FLOAT = new BigInteger("EFEFEFEF", 16).floatValue();
 
   FloatAbstractDecoder(final DatMeta meta, final Field field) {
     super(meta, field);
@@ -17,9 +17,9 @@ public class FloatAbstractDecoder extends AbstractDecoder<Float> {
   public Float decode(final int id, final ByteBuffer buf) {
     final Float value = buf.getFloat();
 
-    if (DecoderUtils.isNull(value)) {
-      return null;
-    }
+    // if (isNull(value)) {
+    //   return null;
+    // }
     return value;
   }
 
@@ -27,5 +27,10 @@ public class FloatAbstractDecoder extends AbstractDecoder<Float> {
   public int getColumnLength() {
     return COLUMN_LENGTH;
   }
+
+  // @Override
+  // public boolean isNull(Number value) {
+  //   return value == NULL_FLOAT;
+  // }
 }
 

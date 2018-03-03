@@ -26,7 +26,6 @@ import javax.persistence.Transient;
 @ToString
 @Table(name = "atlas_node")
 public class AtlasNode {
-  // private static final int TIER_MAGIC_NUMBER = 67;
 
   @Id
   private int id;
@@ -43,13 +42,13 @@ public class AtlasNode {
   private float y;
 
   @Transient
-  private int unknown4;
+  private Integer unknown4;
 
   @Transient
-  private int unknown5;
+  private Integer unknown5;
 
   @Transient
-  private int unknown6;
+  private Integer unknown6;
 
   @OneToMany(mappedBy = "atlasNode", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   private List<ConnectedAtlasNode> atlasNodeKeys;
@@ -58,9 +57,4 @@ public class AtlasNode {
   @JoinColumn(name = "item_visual_identity_id", referencedColumnName = "id", updatable = false)
   private ItemVisualIdentity defaultItemVisualIdentityKey;
 
-  @OneToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "shaped_item_visual_identity_id",
-      referencedColumnName = "id",
-      updatable = false)
-  private ItemVisualIdentity defaultShapedItemVisualIdentityKey;
 }

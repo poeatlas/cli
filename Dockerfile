@@ -4,6 +4,7 @@ WORKDIR /tmp
 
 COPY . .
 
+# extract jar files from distribution zips
 RUN apk add --update bash && rm -rf /var/cache/apk/* \
   && ./gradlew clean build -x findbugsMain -x findbugsTest \
       -x checkstyleMain -x checkstyleTest \

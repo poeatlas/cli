@@ -26,6 +26,7 @@ public final class DecoderUtils {
   }
 
   public static boolean isNull(final Number value) {
+
     return NULL_VALUES.contains(value);
   }
 }

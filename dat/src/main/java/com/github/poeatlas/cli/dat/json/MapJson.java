@@ -17,5 +17,10 @@ public class MapJson {
   private List<Integer> sextant;
   private String iconPath;
   private String shapedIconPath;
-  private Integer shaperOrbTier;
+  private boolean isUnique;
+
+  // public String getShapedIconPath() {
+  //
+  //   return shapedIconPath;
+  // }
 }

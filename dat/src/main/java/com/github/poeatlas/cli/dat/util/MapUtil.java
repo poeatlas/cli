@@ -45,4 +45,5 @@ public class MapUtil {
     return StringUtils.join(itemVisualIdentity.getDdsFile()
         .replaceFirst("\\.dds$", ""), ".png");
   }
+
 }

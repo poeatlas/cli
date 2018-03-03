@@ -49,62 +49,6 @@ public class DdsExtractor {
     extract(inputFile, new File(outputPath));
   }
 
-  // /**
-  //  * extracts the dds files using given mipmap.
-  //  *
-  //  * @param inputFile file to extract
-  //  * @throws IOException if file is invalid
-  //  */
-  // public void extract(final File inputFile, final File outputFile) throws IOException {
-  //   // log.info("{} will be extracted as a PNG image.", inputFile.getPath(), getMipmap());
-  //
-  //   @Cleanup final InputStream is = FileUtils.openInputStream(inputFile);
-  //
-  //   final byte[] decSizeBytes = IOUtils.readFully(is, 4);
-  //
-  //   if (decSizeBytes[0] == ASTERISK_ASCII_NUMBER) {
-  //     final byte[] remainingBytes = IOUtils.readFully(is, (int) (inputFile.length() - 4));
-  //     final String beginning = new String(decSizeBytes, StandardCharsets.UTF_8);
-  //     final String ending = new String(remainingBytes, StandardCharsets.UTF_8);
-  //
-  //     final File extractFile = new File(getRoot(),beginning.substring(1) + ending);
-  //     log.info("{} references {}", inputFile.getPath(), extractFile.getPath());
-  //     extract(extractFile, outputFile);
-  //     return;
-  //   }
-  //
-  //
-  //
-  //   log.debug("decSizeBytes: {}", decSizeBytes);
-  //   // converts 4 big endian ordered bytes to a little endian int
-  //   // have to & 0xFF to eliminate the conversion from byte to int
-  //   // final int size = ((decSizeBytes[3] & 0xFF) << 24)
-  //   //                  | ((decSizeBytes[2] & 0xFF) << 16)
-  //   //                  | ((decSizeBytes[1] & 0xFF) << 8)
-  //   //                  | (decSizeBytes[0] & 0xFF);
-  //
-  //   final int size = ByteBuffer.wrap(decSizeBytes).order(ByteOrder.LITTLE_ENDIAN).getInt();
-  //
-  //   if (log.isDebugEnabled()) {
-  //     log.debug("Brotli decoded size: {}", size);
-  //   }
-  //
-  //   // converts brotli encoded file into ByteArrayInputStream
-  //   @Cleanup final BrotliInputStream bis = new BrotliInputStream(is);
-  //   final byte[] decodedBytes = IOUtils.readFully(bis, size);
-  //   @Cleanup final ByteArrayInputStream bais = new ByteArrayInputStream(decodedBytes);
-  //   @Cleanup final ImageInputStream iis = ImageIO.createImageInputStream(bais);
-  //
-  //   final ImageReader imageReader = ImageIO.getImageReadersBySuffix(DDS).next();
-  //
-  //   imageReader.setInput(iis);
-  //
-  //   final BufferedImage image = imageReader.read(getMipmap());
-  //
-  //   ImageIO.write(image, PNG, outputFile);
-  //   log.info("{} ({}x{}) created", outputFile.getPath(), image.getWidth(), image.getHeight());
-  // }
-
   /**
    * extracts the dds files using given mipmap.
    *
@@ -164,5 +108,6 @@ public class DdsExtractor {
     ImageIO.write(image, PNG, outputFile);
     log.info("{} ({}x{}) created", outputFile.getPath(), image.getWidth(), image.getHeight());
   }
+
 
 }
