@@ -68,6 +68,7 @@ public class NodeFilter {
            || "/art/2ditems/currency/sealwhite.dds".equals(filePath)
            || "/art/2ditems/currency/sealyellow.dds".equals(filePath)
            || "/art/2ditems/currency/sealred.dds".equals(filePath)
+           || "/art/2ditems/currency/supershapersorb.dds".equals(filePath)
            || "/art/textures/interface/2d/2dart_uiimages_ingame_3.dds".equals(filePath)
            || "/art/textures/interface/2d/2dart_uiimages_ingame_6.dds".equals(filePath)
            || "/data/atlasnode.dat".equals(filePath)
